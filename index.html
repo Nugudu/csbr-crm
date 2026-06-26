@@ -1,0 +1,2008 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard CSBR — Cámara Salvadoreña de Bienes Raíces</title>
+<style>
+:root{
+  --navy:#1A3A6B;--navy-light:#1F4D8A;--gold:#F5C400;--gold-light:#FFFBEA;
+  --bg:#F6F7FB;--white:#fff;--text:#111827;--text-2:#6B7280;--text-3:#9CA3AF;
+  --border:#E5E7EB;--green:#059669;--green-bg:#D1FAE5;--blue:#2563EB;--blue-bg:#DBEAFE;
+  --amber:#D97706;--amber-bg:#FEF3C7;--red:#DC2626;--red-bg:#FEE2E2;
+  --purple:#7C3AED;--purple-bg:#EDE9FE;--gray-bg:#F3F4F6;--csbr-green:#63B22F;--csbr-yellow:#F5C400;
+  --radius:10px;--radius-sm:6px;--shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;}
+.layout{display:flex;min-height:100vh;}
+/* Sidebar */
+.sidebar{width:230px;background:var(--navy);display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:0;left:0;height:100vh;z-index:100;border-right:3px solid #63B22F;}
+.sidebar-logo{padding:24px 20px 20px;border-bottom:1px solid rgba(255,255,255,.08);}
+.logo-text{font-size:22px;font-weight:800;color:#fff;letter-spacing:.5px;font-family:Arial,sans-serif;}
+.logo-sub{font-size:9px;color:rgba(255,255,255,.5);margin-top:3px;letter-spacing:.03em;text-transform:uppercase;line-height:1.4;max-width:160px;}
+.gold-bar{height:3px;background:linear-gradient(90deg,#63B22F,#F5C400);border-radius:2px;width:48px;margin-top:10px;}
+.sidebar-nav{padding:16px 10px;flex:1;overflow-y:auto;}
+.nav-label{font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.1em;padding:0 10px;margin-bottom:6px;margin-top:16px;}
+.nav-label:first-child{margin-top:0;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius-sm);cursor:pointer;color:rgba(255,255,255,.6);font-size:13px;transition:all .15s;margin-bottom:2px;}
+.nav-item:hover{background:rgba(255,255,255,.07);color:#fff;}
+.nav-item.active{background:var(--gold);color:var(--navy);font-weight:600;}
+.nav-item svg{width:16px;height:16px;flex-shrink:0;}
+.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,.08);}
+.sidebar-footer p{font-size:11px;color:rgba(255,255,255,.3);}
+.sidebar-footer strong{color:rgba(255,255,255,.6);display:block;font-size:12px;margin-bottom:2px;}
+/* Main */
+.main{margin-left:230px;flex:1;padding:28px 28px 40px;}
+.page{display:none;}.page.active{display:block;}
+.page-header{margin-bottom:24px;}
+.page-title{font-size:22px;font-weight:700;color:var(--navy);}
+.page-sub{font-size:13px;color:var(--text-2);margin-top:3px;}
+/* Metrics */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+.metric-card{background:var(--white);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);border:1px solid var(--border);}
+.metric-label{font-size:11px;color:var(--text-2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+.metric-value{font-size:28px;font-weight:700;color:var(--navy);line-height:1;}
+.metric-sub{font-size:11px;color:var(--text-3);margin-top:4px;}
+.metric-card.gold{border-top:3px solid var(--gold);}
+.metric-card.green{border-top:3px solid var(--green);}
+.metric-card.blue{border-top:3px solid var(--blue);}
+.metric-card.red{border-top:3px solid var(--red);}
+.metric-card.purple{border-top:3px solid var(--purple);}
+/* Cards */
+.card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:20px;}
+.card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.card-title{font-size:15px;font-weight:600;color:var(--navy);}
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .15s;}
+.btn-primary{background:var(--navy);color:#fff;}
+.btn-primary:hover{background:var(--navy-light);}
+.btn-gold{background:var(--gold);color:var(--navy);font-weight:600;}
+.btn-gold:hover{background:#D4AA00;}
+.btn-green{background:var(--green-bg);color:var(--green);border:1px solid #6ee7b7;}
+.btn-green:hover{background:#a7f3d0;}
+.btn-sm{padding:5px 10px;font-size:12px;}
+.btn-danger{background:var(--red-bg);color:var(--red);border:1px solid #fca5a5;}
+.btn-pub{background:#F3F4F6;color:var(--text-2);border:1px solid var(--border);transition:all .2s;}
+.btn-pub:hover{background:#E5E7EB;}
+.btn-pub.active{background:#1877F2;color:#fff;border-color:#1877F2;}
+.btn-pub-wrap{background:var(--bg);border-top:1px solid var(--border);padding:10px 16px;}
+.pub-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:2px 7px;border-radius:20px;font-weight:500;margin-right:3px;margin-bottom:3px;}
+.pub-badge.fb{background:#E7F0FE;color:#1877F2;}
+.pub-badge.ig{background:#FCE4EC;color:#C13584;}
+.pub-badge.yt{background:#FFEBEE;color:#FF0000;}
+.pub-badge.mk{background:#FFF3E0;color:#E65100;}
+.pub-badge.wa{background:#E8F5E9;color:#25D366;}
+.pub-badge.en{background:#EDE9FE;color:#7C3AED;}
+.pub-banner{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;}
+.pub-banner.yes{background:#E8F5E9;color:#059669;}
+.pub-banner.no{background:#F3F4F6;color:#9CA3AF;}
+.btn-danger:hover{background:#fca5a5;}
+.btn-outline{background:#fff;color:var(--text-2);border:1px solid var(--border);}
+.btn-outline:hover{background:var(--bg);}
+/* Forms */
+.form-section{background:var(--bg);border-radius:var(--radius);padding:18px;margin-bottom:20px;border:1px solid var(--border);display:none;}
+.form-section.open{display:block;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.form-grid.cols3{grid-template-columns:1fr 1fr 1fr;}
+.form-grid.cols4{grid-template-columns:1fr 1fr 1fr 1fr;}
+.form-grid.cols1{grid-template-columns:1fr;}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;}
+.field input,.field select,.field textarea{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;color:var(--text);background:var(--white);outline:none;transition:border .15s;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--navy);}
+.field textarea{height:70px;resize:vertical;font-family:inherit;}
+.form-actions{display:flex;gap:8px;margin-top:4px;}
+/* Commission preview */
+.comm-preview{background:var(--gold-light);border:1px solid var(--gold);border-radius:var(--radius-sm);padding:12px 14px;margin-top:4px;display:none;}
+.comm-preview.show{display:block;}
+.cp-row{display:flex;justify-content:space-between;font-size:13px;padding:3px 0;}
+.cp-label{color:var(--text-2);}
+.cp-val{font-weight:600;color:var(--navy);}
+/* Table */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+th{font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.05em;padding:10px 14px;text-align:left;background:var(--bg);border-bottom:1px solid var(--border);}
+td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text-2);vertical-align:middle;font-size:13px;}
+tr:last-child td{border:none;}
+tr:hover td{background:#FAFAFA;}
+.td-bold{font-weight:600;color:var(--text);font-size:13px;}
+.td-sub{font-size:11px;color:var(--text-3);margin-top:2px;}
+/* Badges */
+.badge{display:inline-flex;align-items:center;font-size:11px;padding:3px 9px;border-radius:20px;font-weight:500;white-space:nowrap;}
+.b-disponible{background:var(--green-bg);color:var(--green);}
+.b-en-proceso{background:var(--blue-bg);color:var(--blue);}
+.b-vendido{background:var(--gray-bg);color:var(--text-2);}
+.b-alquiler{background:var(--purple-bg);color:var(--purple);}
+.b-visitada{background:var(--blue-bg);color:var(--blue);}
+.b-interesado{background:var(--amber-bg);color:var(--amber);}
+.b-visita-prog{background:var(--purple-bg);color:var(--purple);}
+.b-programada{background:var(--purple-bg);color:var(--purple);}
+.b-producida{background:var(--green-bg);color:var(--green);}
+.b-cerrada{background:var(--green-bg);color:var(--green);}
+.b-pendiente{background:var(--gray-bg);color:var(--text-2);}
+.b-rodaje{background:var(--amber-bg);color:var(--amber);}
+.b-edicion{background:var(--purple-bg);color:var(--purple);}
+.b-entregada{background:var(--green-bg);color:var(--green);}
+.b-youtube{background:#FEE2E2;color:#DC2626;}
+.status-select{border:1px solid var(--border);border-radius:20px;font-size:11px;font-weight:500;padding:3px 8px;cursor:pointer;outline:none;background:var(--white);}
+/* Filters */
+.filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.filter-chip{padding:5px 12px;border-radius:20px;border:1px solid var(--border);font-size:12px;cursor:pointer;background:var(--white);color:var(--text-2);transition:all .15s;}
+.filter-chip.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+.search-box{padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;min-width:180px;outline:none;}
+.search-box:focus{border-color:var(--navy);}
+/* Inmueble cards */
+.inmueble-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;}
+/* List view */
+#inmueble-grid.view-list{display:flex;flex-direction:column;gap:10px;}
+#inmueble-grid.view-list .inmueble-card{display:flex;flex-direction:row;align-items:stretch;}
+#inmueble-grid.view-list .inmueble-card-head{width:220px;flex-shrink:0;border-radius:0;display:flex;flex-direction:column;justify-content:center;}
+#inmueble-grid.view-list .inmueble-card-body{flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:0;}
+#inmueble-grid.view-list .inmueble-card-body .inmueble-row{border-bottom:none;border-right:1px solid var(--border);padding:6px 10px;}
+#inmueble-grid.view-list .inmueble-card-body>div:last-child{border-right:none;}
+#inmueble-grid.view-list .inmueble-card-footer{width:auto;flex-shrink:0;flex-direction:column;justify-content:center;border-top:none;border-left:1px solid var(--border);}
+#inmueble-grid.view-list iframe{display:none;}
+/* Table view */
+#inmueble-grid.view-table{display:block;}
+#inmueble-grid.view-table .inm-table{width:100%;border-collapse:collapse;background:#fff;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);}
+#inmueble-grid.view-table .inm-table th{font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.05em;padding:10px 14px;text-align:left;background:var(--bg);border-bottom:1px solid var(--border);}
+#inmueble-grid.view-table .inm-table td{padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px;color:var(--text-2);vertical-align:middle;}
+#inmueble-grid.view-table .inm-table tr:last-child td{border:none;}
+#inmueble-grid.view-table .inm-table tr:hover td{background:#FAFAFA;}
+.inmueble-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;transition:box-shadow .2s;}
+.inmueble-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.1);}
+.inmueble-card-head{background:var(--navy);padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.inmueble-card-title{font-size:14px;font-weight:600;color:#fff;line-height:1.4;flex:1;}
+.inmueble-card-body{padding:14px 16px;}
+.inmueble-row{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--border);}
+.inmueble-row:last-child{border:none;}
+.inmueble-row-label{color:var(--text-2);}
+.inmueble-row-val{font-weight:600;color:var(--text);}
+.inmueble-card-footer{padding:10px 16px;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;background:var(--bg);}
+.interesados-count{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--text-2);padding:3px 8px;background:var(--white);border:1px solid var(--border);border-radius:20px;}
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--white);border-radius:var(--radius);width:100%;max-width:580px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);}
+.modal-header{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.modal-title{font-size:16px;font-weight:600;color:var(--navy);}
+.modal-close{background:none;border:none;font-size:22px;color:var(--text-3);cursor:pointer;line-height:1;}
+.modal-close:hover{color:var(--text);}
+.modal-body{padding:20px;}
+.modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;}
+/* Producciones */
+.prod-list{display:flex;flex-direction:column;gap:10px;}
+.prod-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px;box-shadow:var(--shadow);}
+.prod-left{flex:1;}
+.prod-title{font-size:14px;font-weight:600;color:var(--navy);margin-bottom:3px;}
+.prod-meta{font-size:12px;color:var(--text-2);}
+.prod-right{display:flex;align-items:center;gap:10px;flex-shrink:0;flex-wrap:wrap;}
+.prod-date{font-size:12px;color:var(--text-3);}
+.prod-type{font-size:11px;font-weight:600;color:var(--gold);background:var(--gold-light);padding:3px 10px;border-radius:20px;}
+/* Reportes */
+.rep-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
+.rep-card{background:var(--white);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);border:1px solid var(--border);}
+.rep-label{font-size:11px;color:var(--text-2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
+.rep-value{font-size:26px;font-weight:700;line-height:1;margin-bottom:2px;}
+.rep-sub{font-size:11px;color:var(--text-3);}
+.split-bar{display:flex;height:10px;border-radius:5px;overflow:hidden;margin:12px 0 6px;}
+.split-n{background:var(--gold);width:50%;}
+.split-s{background:var(--navy);width:50%;}
+.split-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--text-2);}
+.comm-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border);align-items:center;font-size:13px;}
+.comm-row.header{background:var(--bg);font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.04em;}
+.comm-row:last-child{border:none;}
+.comm-row:hover{background:#fafafa;}
+/* YouTube */
+.yt-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:16px;overflow:hidden;box-shadow:var(--shadow);}
+.yt-head{background:var(--navy);padding:12px 18px;}
+.yt-type{font-size:11px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;}
+.yt-title{font-size:14px;font-weight:600;color:#fff;}
+.yt-body{padding:16px 18px;}
+.yt-label{font-size:10px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;margin-top:12px;}
+.yt-label:first-child{margin-top:0;}
+.yt-box{background:var(--bg);border-radius:var(--radius-sm);padding:10px 12px;font-size:13px;color:var(--text);line-height:1.6;position:relative;white-space:pre-wrap;}
+.copy-btn{position:absolute;top:8px;right:8px;font-size:11px;padding:3px 8px;border-radius:var(--radius-sm);background:var(--navy);color:#fff;border:none;cursor:pointer;font-weight:500;}
+.copy-btn:hover{background:var(--navy-light);}
+.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;}
+.tag{font-size:11px;padding:3px 8px;border-radius:20px;background:var(--blue-bg);color:var(--blue);font-weight:500;}
+.yt-tip{background:var(--gold-light);border-left:3px solid var(--gold);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;color:var(--navy);margin-bottom:16px;}
+/* Empty */
+.empty-state{text-align:center;padding:40px 20px;color:var(--text-3);}
+.empty-state p{font-size:14px;margin-top:8px;}
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:#fff;padding:12px 20px;border-radius:var(--radius);font-size:13px;font-weight:500;display:none;z-index:999;box-shadow:0 4px 12px rgba(0,0,0,.15);}
+.toast.show{display:flex;align-items:center;gap:8px;}
+.fab-respuesta{position:fixed;bottom:24px;right:24px;background:#25D366;color:#fff;border:none;border-radius:50px;
+  padding:14px 22px;font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(37,211,102,.45);
+  display:flex;align-items:center;gap:8px;z-index:150;transition:transform .15s;}
+.fab-respuesta:hover{transform:scale(1.04);}
+.fab-pulse{width:8px;height:8px;border-radius:50%;background:#fff;animation:fabPulse 1.4s infinite;}
+@keyframes fabPulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+@media(max-width:600px){.fab-respuesta{bottom:16px;right:16px;padding:12px 16px;font-size:13px;}}
+/* Interesados mini list inside inmueble detail */
+.interesado-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);gap:8px;}
+.interesado-row:last-child{border:none;}
+@media(max-width:900px){
+  .sidebar{width:60px;}
+  .sidebar .logo-text,.sidebar .logo-sub,.sidebar .gold-bar,.nav-label,.nav-item span,.sidebar-footer{display:none;}
+  .nav-item{justify-content:center;padding:12px;}
+  .main{margin-left:60px;padding:16px;}
+  .metrics,.rep-grid{grid-template-columns:1fr 1fr;}
+  .form-grid,.form-grid.cols3,.form-grid.cols4{grid-template-columns:1fr;}
+  .inmueble-grid{grid-template-columns:1fr;}
+  .comm-row{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:600px){
+  .metrics,.rep-grid{grid-template-columns:1fr;}
+  .main{margin-left:0;padding:12px;}
+  .sidebar{display:none;}
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="layout">
+
+<!-- ── Sidebar ── -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-text"><span style="color:#F5C400;">CS</span><span style="color:#fff;">BR</span></div>
+    <div class="logo-sub">Cámara Salvadoreña de Bienes Raíces</div>
+    <div class="gold-bar"></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Principal</div>
+    <div class="nav-item active" onclick="showPage('resumen',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      <span>Resumen</span>
+    </div>
+    <div class="nav-label">Gestión</div>
+    <div class="nav-item" onclick="showPage('inmuebles',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Inmuebles</span>
+    </div>
+    <div class="nav-item" onclick="showPage('clientes',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      <span>Interesados</span>
+    </div>
+    <div class="nav-item" onclick="showPage('producciones',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+      <span>Producciones</span>
+    </div>
+    <div class="nav-label">Finanzas</div>
+    <div class="nav-item" onclick="showPage('reportes',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      <span>Reportes</span>
+    </div>
+    <div class="nav-label">Herramientas</div>
+    <div class="nav-item" onclick="showPage('youtube',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22.54 6.42a2.78 2.78 0 00-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 001.46 6.42 29 29 0 001 12a29 29 0 00.46 5.58 2.78 2.78 0 001.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 001.95-1.96A29 29 0 0023 12a29 29 0 00-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="currentColor"/></svg>
+      <span>YouTube SEO</span>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <strong>Nuria Durán</strong>
+    <p>nuguduprodutions@gmail.com</p>
+  </div>
+</aside>
+
+<main class="main">
+
+<!-- ══ RESUMEN ══ -->
+<div id="page-resumen" class="page active">
+  <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
+    <div><div class="page-title">Resumen general</div><div class="page-sub">CSBR — Cámara Salvadoreña de Bienes Raíces</div></div>
+    <button class="btn btn-gold" onclick="exportPDF('resumen')">⬇ Reporte PDF</button>
+  </div>
+  <div class="metrics">
+    <div class="metric-card gold"><div class="metric-label">Inmuebles</div><div class="metric-value" id="r-inmuebles">0</div><div class="metric-sub">en cartera</div></div>
+    <div class="metric-card blue"><div class="metric-label">Interesados</div><div class="metric-value" id="r-inter">0</div><div class="metric-sub">activos</div></div>
+    <div class="metric-card purple"><div class="metric-label">Producciones</div><div class="metric-value" id="r-prods">0</div><div class="metric-sub">en proceso</div></div>
+    <div class="metric-card" style="border-top:3px solid #1877F2;"><div class="metric-label">Publicados en redes</div><div class="metric-value" id="r-pub">0</div><div class="metric-sub">inmuebles activos</div></div>
+    <div class="metric-card green"><div class="metric-label">Cierres</div><div class="metric-value" id="r-close">0</div><div class="metric-sub">propiedades vendidas</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+    <div class="card">
+      <div class="card-header"><span class="card-title">Últimos inmuebles</span><button class="btn btn-outline btn-sm" onclick="showPage('inmuebles',document.querySelectorAll('.nav-item')[1])">Ver todos</button></div>
+      <div id="r-recent-inmuebles"><div class="empty-state"><p>Sin inmuebles aún</p></div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Últimos interesados</span><button class="btn btn-outline btn-sm" onclick="showPage('clientes',document.querySelectorAll('.nav-item')[2])">Ver todos</button></div>
+      <div id="r-recent-clientes"><div class="empty-state"><p>Sin interesados aún</p></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ INMUEBLES ══ -->
+<div id="page-inmuebles" class="page">
+  <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
+    <div><div class="page-title">Inmuebles</div><div class="page-sub">Cartera de propiedades con interesados y producción asociados</div></div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-gold" onclick="exportPDF('inmuebles')">⬇ PDF</button>
+      <button class="btn btn-primary" onclick="openInmuebleForm()">+ Nuevo inmueble</button>
+    </div>
+  </div>
+
+  <!-- Form nuevo inmueble -->
+  <div class="form-section" id="inmueble-form">
+    <div style="font-size:15px;font-weight:600;color:var(--navy);margin-bottom:14px;" id="inmueble-form-title">Nuevo inmueble</div>
+    <div class="form-grid">
+      <div class="field"><label>Nombre / Descripción *</label><input type="text" id="if-nombre" placeholder="Ej. Casa 4 rec. Zaragoza La Libertad"></div>
+      <div class="field"><label>Tipo</label>
+        <select id="if-tipo">
+          <option value="Casa">🏠 Casa</option>
+          <option value="Apartamento">🏢 Apartamento</option>
+          <option value="Terreno">🌿 Terreno</option>
+          <option value="Local comercial">🏪 Local comercial</option>
+          <option value="Quinta">🌳 Quinta</option>
+          <option value="Otro">Otro</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-grid cols3">
+      <div class="field"><label>Zona / Municipio</label><input type="text" id="if-zona" placeholder="Ej. Zaragoza, La Libertad"></div>
+      <div class="field"><label>Residencial / Dirección</label><input type="text" id="if-dir" placeholder="Ej. Res. Las Pérgolas"></div>
+      <div class="field"><label>Operación</label>
+        <select id="if-op">
+          <option value="Venta">Venta</option>
+          <option value="Alquiler">Alquiler</option>
+          <option value="Venta o alquiler">Venta o alquiler</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-grid cols1" style="margin-bottom:6px;">
+      <div class="field">
+        <label>Dirección exacta para el mapa</label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="text" id="if-mapaddr" placeholder="Ej. Residencial Las Pérgolas, Zaragoza, La Libertad, El Salvador" style="flex:1;"
+            oninput="debouncedMapPreview()">
+          <button type="button" class="btn btn-outline btn-sm" onclick="generateMapPreview()" style="white-space:nowrap;flex-shrink:0;">🔍 Buscar</button>
+        </div>
+        <div style="font-size:11px;color:var(--text-3);margin-top:3px;">Escribe la dirección completa y presiona Buscar — el mapa aparece automáticamente</div>
+      </div>
+    </div>
+    <div id="if-map-preview" style="display:none;margin-bottom:14px;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);">
+      <iframe id="if-map-frame" width="100%" height="200" style="border:0;display:block;" allowfullscreen loading="lazy"></iframe>
+      <div style="background:var(--bg);padding:8px 12px;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:11px;color:var(--text-2);" id="if-map-addr-label">—</span>
+        <button type="button" class="btn btn-danger btn-sm" onclick="clearMapPreview()">✕ Quitar mapa</button>
+      </div>
+    </div>
+    <div class="form-grid cols4">
+      <div class="field"><label>Valor ($)</label><input type="number" id="if-valor" placeholder="245000" oninput="previewComm()"></div>
+      <div class="field"><label>% Comisión</label><input type="number" id="if-comm" value="5" min="0" max="100" step="0.5" oninput="previewComm()"></div>
+      <div class="field"><label>m² construidos</label><input type="text" id="if-m2" placeholder="Ej. 135"></div>
+      <div class="field"><label>Estado</label>
+        <select id="if-estado">
+          <option value="disponible">Disponible</option>
+          <option value="en-proceso">En proceso</option>
+          <option value="vendido">Vendido / Arrendado</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-grid cols4">
+      <div class="field"><label>Recámaras</label><input type="text" id="if-rec" placeholder="3"></div>
+      <div class="field"><label>Baños</label><input type="text" id="if-ban" placeholder="2.5"></div>
+      <div class="field"><label>Parqueos</label><input type="text" id="if-park" placeholder="2"></div>
+      <div class="field"><label>Agente responsable</label><input type="text" id="if-agente" placeholder="Nombre del agente"></div>
+    </div>
+    <!-- Comm preview -->
+    <div class="comm-preview" id="if-comm-preview">
+      <div style="font-size:12px;font-weight:600;color:var(--amber);margin-bottom:6px;">Vista previa de comisión</div>
+      <div class="cp-row"><span class="cp-label">Comisión total</span><span class="cp-val" id="icp-total" style="color:var(--amber);">—</span></div>
+      <div class="cp-row"><span class="cp-label">CSBR 50%</span><span class="cp-val" style="color:var(--green);" id="icp-nug">—</span></div>
+      <div class="cp-row"><span class="cp-label">Socio / Agente 50%</span><span class="cp-val" id="icp-soc">—</span></div>
+    </div>
+    <div class="form-grid cols1" style="margin-top:14px;">
+      <div class="field"><label>Notas / Descripción adicional</label><textarea id="if-notas" placeholder="Ej. Vista al volcán, piscina climatizada, excelente estado..."></textarea></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="saveInmueble()">Guardar inmueble</button>
+      <button class="btn btn-outline" onclick="closeInmuebleForm()">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- Filtros + controles de vista -->
+  <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center;">
+    <input class="search-box" type="text" placeholder="Buscar por inmueble, zona, interesado, teléfono o red..." oninput="renderInmuebles()" id="inm-search">
+    <button class="filter-chip active" onclick="setInmFilter('todos',this)" id="if-todos">Todos</button>
+    <button class="filter-chip" onclick="setInmFilter('disponible',this)">Disponibles</button>
+    <button class="filter-chip" onclick="setInmFilter('en-proceso',this)">En proceso</button>
+    <button class="filter-chip" onclick="setInmFilter('vendido',this)">Vendidos</button>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+    <!-- Orden -->
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="font-size:12px;color:var(--text-2);">Ordenar:</span>
+      <select id="inm-sort" onchange="renderInmuebles()" style="padding:5px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;color:var(--text);background:#fff;outline:none;">
+        <option value="reciente">Más reciente primero</option>
+        <option value="antiguo">Más antiguo primero</option>
+        <option value="valor-desc">Mayor valor</option>
+        <option value="valor-asc">Menor valor</option>
+        <option value="nombre">Nombre A–Z</option>
+        <option value="zona">Zona A–Z</option>
+      </select>
+    </div>
+    <!-- Vistas -->
+    <div style="display:flex;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:3px;">
+      <button id="view-grid" onclick="setView('grid')" title="Vista cuadrícula"
+        style="padding:5px 9px;border:none;border-radius:4px;cursor:pointer;background:var(--navy);color:#fff;font-size:13px;" >⊞</button>
+      <button id="view-list" onclick="setView('list')" title="Vista lista compacta"
+        style="padding:5px 9px;border:none;border-radius:4px;cursor:pointer;background:transparent;color:var(--text-2);font-size:13px;">☰</button>
+      <button id="view-table" onclick="setView('table')" title="Vista tabla"
+        style="padding:5px 9px;border:none;border-radius:4px;cursor:pointer;background:transparent;color:var(--text-2);font-size:13px;">⊟</button>
+    </div>
+  </div>
+
+  <div id="inmueble-grid">
+    <div class="empty-state"><p>Agrega tu primer inmueble con el botón de arriba</p></div>
+  </div>
+</div>
+
+<!-- ══ INTERESADOS ══ -->
+<div id="page-clientes" class="page">
+  <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
+    <div><div class="page-title">Interesados</div><div class="page-sub">Todos los interesados registrados por inmueble</div></div>
+    <button class="btn btn-gold" onclick="exportPDF('clientes')">⬇ PDF</button>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title" id="client-count">0 interesados</span>
+      <div class="filters">
+        <input class="search-box" type="text" placeholder="Buscar por nombre, teléfono, inmueble o zona..." oninput="renderClientes()" id="client-search">
+        <button class="filter-chip active" onclick="setCFilter('todos',this)">Todos</button>
+        <button class="filter-chip" onclick="setCFilter('interesado',this)">Interesados</button>
+        <button class="filter-chip" onclick="setCFilter('cerrada',this)">Cerrados</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Nombre</th><th>Teléfono</th><th>Inmueble</th><th>Zona</th><th>Comisión total</th><th>CSBR 50%</th><th>Fecha</th><th>Estado</th></tr></thead>
+        <tbody id="clients-tbody"></tbody>
+      </table>
+      <div id="clients-empty" class="empty-state" style="display:none;"><p>Los interesados aparecen aquí al agregarlos desde un inmueble</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PRODUCCIONES ══ -->
+<div id="page-producciones" class="page">
+  <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
+    <div><div class="page-title">Producciones</div><div class="page-sub">Control de rodajes, edición y entregas</div></div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-gold" onclick="exportPDF('producciones')">⬇ PDF</button>
+      <button class="btn btn-primary" onclick="toggleForm('prod-form')">+ Programar</button>
+    </div>
+  </div>
+  <div class="metrics">
+    <div class="metric-card gold"><div class="metric-label">Total</div><div class="metric-value" id="pm-total">0</div></div>
+    <div class="metric-card blue"><div class="metric-label">Programadas</div><div class="metric-value" id="pm-prog">0</div></div>
+    <div class="metric-card purple"><div class="metric-label">En edición</div><div class="metric-value" id="pm-edit">0</div></div>
+    <div class="metric-card green"><div class="metric-label">Entregadas</div><div class="metric-value" id="pm-done">0</div></div>
+  </div>
+  <div class="form-section" id="prod-form">
+    <div style="font-size:15px;font-weight:600;color:var(--navy);margin-bottom:14px;">Nueva producción</div>
+    <div class="form-grid">
+      <div class="field"><label>Inmueble *</label>
+        <select id="pf-inmueble"><option value="">— Selecciona un inmueble —</option></select>
+      </div>
+      <div class="field"><label>Agente / contacto</label><input type="text" id="pf-agent" placeholder="Nombre del agente"></div>
+    </div>
+    <div class="form-grid cols3">
+      <div class="field"><label>Fecha de rodaje</label><input type="date" id="pf-date"></div>
+      <div class="field"><label>Tipo de producción</label>
+        <select id="pf-tipo">
+          <option value="Fotos">📷 Fotos</option>
+          <option value="Grabación">🎬 Grabación</option>
+          <option value="Fotos + Grabación">📷🎬 Fotos + Grabación</option>
+        </select>
+      </div>
+      <div class="field"><label>Estado</label>
+        <select id="pf-status">
+          <option value="programada">Programada</option>
+          <option value="en rodaje">En rodaje</option>
+          <option value="en edicion">En edición</option>
+          <option value="entregada">Entregada</option>
+          <option value="youtube">Publicada en YouTube</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-grid cols1">
+      <div class="field"><label>Notas</label><textarea id="pf-notes" placeholder="Ej. Llevar dron + iPhone, reunirse a las 8am..."></textarea></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="saveProd()">Guardar</button>
+      <button class="btn btn-outline" onclick="toggleForm('prod-form')">Cancelar</button>
+    </div>
+  </div>
+  <div class="prod-list" id="prod-list"><div class="empty-state"><p>Programa tu primera producción</p></div></div>
+</div>
+
+<!-- ══ REPORTES ══ -->
+<div id="page-reportes" class="page">
+  <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
+    <div><div class="page-title">Reportes de comisiones</div><div class="page-sub">CSBR 50% / Socio 50% · gráficos por zona, venta y alquiler</div></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-outline" onclick="exportCSV('inmuebles')">⬇ CSV Inmuebles</button>
+      <button class="btn btn-outline" onclick="exportCSV('interesados')">⬇ CSV Interesados</button>
+      <button class="btn btn-gold" onclick="exportPDF('reportes')">⬇ PDF</button>
+    </div>
+  </div>
+  <!-- Filtro de fechas -->
+  <div class="card" style="padding:16px 20px;margin-bottom:20px;">
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <span style="font-size:13px;font-weight:600;color:var(--navy);">📅 Período:</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="filter-chip active" onclick="setDateRange('todo',this)" id="dr-todo">Todo</button>
+        <button class="filter-chip" onclick="setDateRange('hoy',this)">Hoy</button>
+        <button class="filter-chip" onclick="setDateRange('semana',this)">Esta semana</button>
+        <button class="filter-chip" onclick="setDateRange('mes',this)">Este mes</button>
+        <button class="filter-chip" onclick="setDateRange('trimestre',this)">Trimestre</button>
+        <button class="filter-chip" onclick="setDateRange('anio',this)">Este año</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;margin-left:auto;flex-wrap:wrap;">
+        <span style="font-size:12px;color:var(--text-2);">Rango personalizado:</span>
+        <input type="date" id="dr-from" onchange="setDateRange('custom',null)"
+          style="padding:5px 8px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;outline:none;">
+        <span style="font-size:12px;color:var(--text-2);">hasta</span>
+        <input type="date" id="dr-to" onchange="setDateRange('custom',null)"
+          style="padding:5px 8px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;outline:none;">
+        <button class="btn btn-outline btn-sm" onclick="clearDateRange()">✕ Limpiar</button>
+      </div>
+    </div>
+    <div id="dr-label" style="font-size:11px;color:var(--text-3);margin-top:6px;">Mostrando todos los inmuebles registrados</div>
+  </div>
+
+  <div class="rep-grid">
+    <div class="rep-card" style="border-top:3px solid var(--gold);">
+      <div class="rep-label">Valor total cartera</div>
+      <div class="rep-value" id="rep-cartera" style="color:var(--navy);">$0</div>
+      <div class="rep-sub" id="rep-cartera-sub">suma de inmuebles</div>
+    </div>
+    <div class="rep-card" style="border-top:3px solid var(--amber);">
+      <div class="rep-label">Comisión total (vendidos)</div>
+      <div class="rep-value" id="rep-comm" style="color:var(--amber);">$0</div>
+      <div class="rep-sub">en el período</div>
+    </div>
+    <div class="rep-card" style="border-top:3px solid var(--green);">
+      <div class="rep-label">Ingreso CSBR 50%</div>
+      <div class="rep-value" id="rep-nug" style="color:var(--green);">$0</div>
+      <div class="rep-sub">tu parte de comisiones</div>
+    </div>
+  </div>
+  <div class="card" style="padding:20px 24px;margin-bottom:20px;">
+    <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:10px;">Distribución 50/50</div>
+    <div class="split-bar"><div class="split-n"></div><div class="split-s"></div></div>
+    <div class="split-labels">
+      <span>CSBR — 50% &nbsp;<strong id="rep-nug-2" style="color:var(--green);">$0</strong></span>
+      <span><strong id="rep-soc" style="color:var(--navy);">$0</strong>&nbsp; Socio / Agente — 50%</span>
+    </div>
+  </div>
+  <!-- Gráficos fila 1 -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;">
+    <div class="card" style="padding:18px;">
+      <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:12px;">Inmuebles por zona</div>
+      <canvas id="chart-zona" height="200"></canvas>
+      <div id="chart-zona-legend" style="margin-top:8px;"></div>
+    </div>
+    <div class="card" style="padding:18px;">
+      <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:12px;">Venta vs Alquiler</div>
+      <canvas id="chart-op" height="200"></canvas>
+      <div id="chart-op-legend" style="margin-top:8px;"></div>
+    </div>
+    <div class="card" style="padding:18px;">
+      <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:12px;">Estado de inmuebles</div>
+      <canvas id="chart-estado" height="200"></canvas>
+      <div id="chart-estado-legend" style="margin-top:8px;"></div>
+    </div>
+  </div>
+  <!-- Gráfico barras valor por zona -->
+  <div class="card" style="padding:18px;margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:12px;">Valor de cartera por zona ($)</div>
+    <canvas id="chart-zona-valor" height="110"></canvas>
+  </div>
+  <!-- Tabla detalle -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Detalle por inmueble</span>
+      <div style="display:flex;gap:8px;">
+        <button class="filter-chip active" onclick="setRepFilter('todos',this)">Todos</button>
+        <button class="filter-chip" onclick="setRepFilter('vendido',this)">Vendidos</button>
+        <button class="filter-chip" onclick="setRepFilter('disponible',this)">Disponibles</button>
+      </div>
+    </div>
+    <div class="comm-row header">
+      <div>Inmueble</div><div>Valor</div><div>% Com.</div><div>Com. total</div><div>CSBR 50%</div>
+    </div>
+    <div id="rep-rows"><div class="empty-state"><p>Agrega inmuebles con valor y % de comisión</p></div></div>
+  </div>
+</div>
+
+<!-- ══ YOUTUBE ══ -->
+<div id="page-youtube" class="page">
+  <div class="page-header"><div class="page-title">Guía YouTube SEO</div><div class="page-sub">Títulos, descripciones y etiquetas para El Salvador</div></div>
+  <div class="yt-tip"><strong>Fórmula ganadora:</strong> [Tipo propiedad] + [Zona exacta] + [Año] + [Precio o gancho] + "Video dron / Tour". Apareces orgánicamente sin pagar publicidad.</div>
+  <div class="yt-card">
+    <div class="yt-head"><div class="yt-type">Casa en venta</div><div class="yt-title">Ejemplo: Zaragoza $279,500 · 4 recámaras</div></div>
+    <div class="yt-body">
+      <div class="yt-label">Título</div>
+      <div class="yt-box">Casa en venta Zaragoza La Libertad 2025 | 4 recámaras $279,500 | Tour con dron<button class="copy-btn" onclick="copyBox(this)">Copiar</button></div>
+      <div class="yt-label">Descripción</div>
+      <div class="yt-box">🏠 Casa en venta — Residencial Las Pérgolas, Zaragoza
+💰 $279,500 | 135m² | 4 rec. | 3.5 baños | 2 parqueos
+0:00 — Vista aérea · 0:45 — Fachada · 1:15 — Interior · 2:40 — Recámaras
+📍 Zaragoza, La Libertad, El Salvador
+📞 Citas: [teléfono] | Nugudú Productions &amp; Design
+#casasenventa #ElSalvador #Zaragoza #bienesraices #dron<button class="copy-btn" onclick="copyBox(this)">Copiar</button></div>
+      <div class="tags"><span class="tag">casas en venta El Salvador</span><span class="tag">Zaragoza La Libertad</span><span class="tag">video dron casa</span><span class="tag">bienes raíces SV 2025</span></div>
+    </div>
+  </div>
+  <div class="yt-card">
+    <div class="yt-head"><div class="yt-type">Apartamento en venta</div><div class="yt-title">Ejemplo: Torre El Paseo $245,000</div></div>
+    <div class="yt-body">
+      <div class="yt-label">Título</div>
+      <div class="yt-box">Apartamento en venta San Salvador 2025 | Torre El Paseo 3 rec. $245,000 | Dron<button class="copy-btn" onclick="copyBox(this)">Copiar</button></div>
+      <div class="tags"><span class="tag">apartamentos San Salvador</span><span class="tag">Torre El Paseo</span><span class="tag">video dron apartamento</span></div>
+    </div>
+  </div>
+  <div class="yt-card">
+    <div class="yt-head"><div class="yt-type">Propiedad de lujo</div><div class="yt-title">Ejemplo: Quintas Nuevo Cuscatlán $1,250,000</div></div>
+    <div class="yt-body">
+      <div class="yt-label">Título</div>
+      <div class="yt-box">Casa de lujo Nuevo Cuscatlán 2025 | 650m² $1.25M | Tour aéreo exclusivo<button class="copy-btn" onclick="copyBox(this)">Copiar</button></div>
+      <div class="tags"><span class="tag">casa de lujo El Salvador</span><span class="tag">Nuevo Cuscatlán</span><span class="tag">luxury real estate SV</span></div>
+    </div>
+  </div>
+  <div class="yt-card">
+    <div class="yt-head"><div class="yt-type">Alquiler</div><div class="yt-title">Ejemplo: Escalón $800/mes</div></div>
+    <div class="yt-body">
+      <div class="yt-label">Título</div>
+      <div class="yt-box">Apartamento en alquiler Escalón San Salvador 2025 | $800/mes 2 rec. | Tour<button class="copy-btn" onclick="copyBox(this)">Copiar</button></div>
+      <div class="tags"><span class="tag">alquiler San Salvador</span><span class="tag">apartamento en renta SV</span><span class="tag">renta 2025</span></div>
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<!-- ══ MODAL: Agregar interesado ══ -->
+<div class="modal-overlay" id="modal-interesado">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modal-interesado-title">Agregar interesado</div>
+        <div style="font-size:12px;color:var(--text-3);margin-top:2px;" id="modal-inmueble-label">—</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="mi-inmueble-id">
+      <div class="form-grid">
+        <div class="field"><label>Nombre completo *</label><input type="text" id="mi-nombre" placeholder="Ej. María González"></div>
+        <div class="field"><label>Teléfono / WhatsApp</label><input type="text" id="mi-tel" placeholder="+503 7000-0000"></div>
+      </div>
+      <div class="form-grid cols3">
+        <div class="field"><label>Fecha contacto</label><input type="date" id="mi-fecha"></div>
+        <div class="field"><label>Cómo llegó</label>
+          <select id="mi-canal">
+            <option value="Facebook Marketplace">Facebook Marketplace</option>
+            <option value="Instagram">Instagram</option>
+            <option value="WhatsApp">WhatsApp directo</option>
+            <option value="YouTube">YouTube</option>
+            <option value="Referido">Referido</option>
+            <option value="Portales">Portales (Encuentra24)</option>
+            <option value="Otro">Otro</option>
+          </select>
+        </div>
+        <div class="field"><label>Estado</label>
+          <select id="mi-estado">
+            <option value="interesado">Interesado</option>
+            <option value="visita-programada">Visita programada</option>
+            <option value="visitada">Visitó la propiedad</option>
+            <option value="programada">Prod. programada</option>
+            <option value="cerrada">Cerrado / vendido</option>
+            <option value="pendiente">Pendiente</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>📅 Fecha programada de visita</label>
+          <input type="date" id="mi-fecha-visita">
+        </div>
+        <div class="field">
+          <label>Hora de visita (opcional)</label>
+          <input type="time" id="mi-hora-visita">
+        </div>
+      </div>
+      <div class="form-grid cols1">
+        <div class="field"><label>Notas</label><textarea id="mi-notas" placeholder="Ej. Busca financiamiento, interesado en bajar precio, llamar el martes..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveInteresado()">Guardar interesado</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: Detalle inmueble ══ -->
+<div class="modal-overlay" id="modal-detalle">
+  <div class="modal" style="max-width:680px;">
+    <div class="modal-header">
+      <div class="modal-title" id="det-title">Detalle del inmueble</div>
+      <button class="modal-close" onclick="document.getElementById('modal-detalle').classList.remove('open')">×</button>
+    </div>
+    <div class="modal-body" id="det-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="document.getElementById('modal-detalle').classList.remove('open')">Cerrar</button>
+      <button class="btn btn-outline" id="det-maps-btn" style="display:none;" onclick="">📍 Google Maps</button>
+      <button class="btn btn-outline" id="det-wa-btn" style="display:none;" onclick="">💬 Compartir WhatsApp</button>
+      <button class="btn btn-green" id="det-add-btn" onclick="">+ Agregar interesado</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: Publicar en redes ══ -->
+<div class="modal-overlay" id="modal-publicar">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">📢 Publicar inmueble en redes</div>
+        <div style="font-size:12px;color:var(--text-3);margin-top:2px;" id="pub-inm-label">—</div>
+      </div>
+      <button class="modal-close" onclick="closePubModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="pub-inm-id">
+      <p style="font-size:13px;color:var(--text-2);margin-bottom:14px;">Selecciona las redes donde publicaste este inmueble:</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
+        <label style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;" id="lbl-fb">
+          <input type="checkbox" id="pub-fb" onchange="togglePubLabel('fb')" style="width:16px;height:16px;accent-color:#1877F2;">
+          <div>
+            <div style="font-size:13px;font-weight:500;color:#1877F2;">Facebook</div>
+            <div style="font-size:11px;color:var(--text-3);">Marketplace · Página · Grupos</div>
+          </div>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;" id="lbl-ig">
+          <input type="checkbox" id="pub-ig" onchange="togglePubLabel('ig')" style="width:16px;height:16px;accent-color:#C13584;">
+          <div>
+            <div style="font-size:13px;font-weight:500;color:#C13584;">Instagram</div>
+            <div style="font-size:11px;color:var(--text-3);">Feed · Stories · Reels</div>
+          </div>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;" id="lbl-yt">
+          <input type="checkbox" id="pub-yt" onchange="togglePubLabel('yt')" style="width:16px;height:16px;accent-color:#FF0000;">
+          <div>
+            <div style="font-size:13px;font-weight:500;color:#FF0000;">YouTube</div>
+            <div style="font-size:11px;color:var(--text-3);">Tour virtual · Video dron</div>
+          </div>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;" id="lbl-mk">
+          <input type="checkbox" id="pub-mk" onchange="togglePubLabel('mk')" style="width:16px;height:16px;accent-color:#E65100;">
+          <div>
+            <div style="font-size:13px;font-weight:500;color:#E65100;">Encuentra24 / Portales</div>
+            <div style="font-size:11px;color:var(--text-3);">Portales inmobiliarios</div>
+          </div>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;" id="lbl-wa">
+          <input type="checkbox" id="pub-wa" onchange="togglePubLabel('wa')" style="width:16px;height:16px;accent-color:#25D366;">
+          <div>
+            <div style="font-size:13px;font-weight:500;color:#25D366;">WhatsApp</div>
+            <div style="font-size:11px;color:var(--text-3);">Grupos · Difusión</div>
+          </div>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;" id="lbl-en">
+          <input type="checkbox" id="pub-en" onchange="togglePubLabel('en')" style="width:16px;height:16px;accent-color:#7C3AED;">
+          <div>
+            <div style="font-size:13px;font-weight:500;color:#7C3AED;">TikTok / Otro</div>
+            <div style="font-size:11px;color:var(--text-3);">Otra red social</div>
+          </div>
+        </label>
+      </div>
+
+      <div class="field" style="margin-bottom:0;">
+        <label>Fecha de publicación</label>
+        <input type="date" id="pub-fecha">
+      </div>
+      <div class="field" style="margin-top:10px;">
+        <label>Nota / enlace de la publicación (opcional)</label>
+        <input type="text" id="pub-nota" placeholder="Ej. https://facebook.com/... o nota interna">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closePubModal()">Cancelar</button>
+      <button class="btn btn-danger btn-sm" id="btn-unpub" onclick="unpublish()" style="display:none;">Quitar publicación</button>
+      <button class="btn btn-primary" onclick="savePub()">💾 Guardar publicación</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Botón flotante: Tengo una respuesta ══ -->
+<button class="fab-respuesta" onclick="openRespuestaPicker()" title="Registrar respuesta de un interesado">
+  <span class="fab-pulse"></span> 📲 Tengo una respuesta
+</button>
+
+<!-- ══ MODAL: Selector rápido de inmueble para agendar ══ -->
+<div class="modal-overlay" id="modal-respuesta">
+  <div class="modal" style="max-width:480px;">
+    <!-- PASO 1: elegir inmueble -->
+    <div id="resp-step-1">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">📲 Registrar respuesta</div>
+          <div style="font-size:12px;color:var(--text-3);margin-top:2px;">¿A qué inmueble respondió el interesado?</div>
+        </div>
+        <button class="modal-close" onclick="document.getElementById('modal-respuesta').classList.remove('open')">×</button>
+      </div>
+      <div class="modal-body">
+        <input class="search-box" type="text" placeholder="Buscar inmueble..." id="resp-search" oninput="renderRespuestaList()" style="width:100%;margin-bottom:12px;">
+        <div id="resp-list" style="max-height:340px;overflow-y:auto;"></div>
+      </div>
+    </div>
+
+    <!-- PASO 2: elegir interesado existente o nuevo -->
+    <div id="resp-step-2" style="display:none;">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">👥 ¿Quién te escribió?</div>
+          <div style="font-size:12px;color:var(--text-3);margin-top:2px;" id="resp-step2-label">—</div>
+        </div>
+        <button class="modal-close" onclick="document.getElementById('modal-respuesta').classList.remove('open')">×</button>
+      </div>
+      <div class="modal-body">
+        <button onclick="backToStep1()" style="background:none;border:none;color:var(--text-2);font-size:12px;cursor:pointer;margin-bottom:12px;display:flex;align-items:center;gap:4px;padding:0;">
+          ‹ Cambiar inmueble
+        </button>
+
+        <button onclick="nuevoInteresadoDesdeRespuesta()" style="width:100%;background:var(--green-bg);color:var(--green);border:1px solid #6ee7b7;border-radius:var(--radius);padding:12px 14px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:14px;display:flex;align-items:center;justify-content:center;gap:8px;">
+          ＋ Es un interesado nuevo
+        </button>
+
+        <div id="resp-existentes-label" style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;"></div>
+        <input class="search-box" type="text" placeholder="Buscar interesado por nombre..." id="resp-int-search" oninput="renderInteresadosDeInmueble()" style="width:100%;margin-bottom:10px;display:none;" id="resp-int-search-input">
+        <div id="resp-int-list" style="max-height:280px;overflow-y:auto;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">✓ Guardado</div>
+
+<script>
+let inmuebles = JSON.parse(localStorage.getItem('ngd_inmuebles') || '[]');
+let clientes  = JSON.parse(localStorage.getItem('ngd_clientes')  || '[]');
+let prods     = JSON.parse(localStorage.getItem('ngd_prods')     || '[]');
+let inmFilter='todos', cFilter='todos', repFilter='todos';
+let dateFrom=null, dateTo=null, dateMode='todo';
+let editingInmId = null;
+
+/* ── Helpers ── */
+const fmt = n => '$' + (n||0).toLocaleString('es-SV',{minimumFractionDigits:2,maximumFractionDigits:2});
+const SL = {
+  disponible:'Disponible','en-proceso':'En proceso',vendido:'Vendido / Arrendado',
+  interesado:'Interesado','visita-programada':'Visita programada',visitada:'Visitó propiedad',programada:'Prod. programada',
+  cerrada:'Cerrado/vendido',pendiente:'Pendiente',
+  'en rodaje':'En rodaje','en edicion':'En edición',entregada:'Entregada',youtube:'En YouTube'
+};
+const SC = {
+  disponible:'b-disponible','en-proceso':'b-en-proceso',vendido:'b-vendido',
+  interesado:'b-interesado','visita-programada':'b-visita-prog',visitada:'b-visitada',programada:'b-programada',
+  cerrada:'b-cerrada',pendiente:'b-pendiente',
+  'en rodaje':'b-rodaje','en edicion':'b-edicion',entregada:'b-entregada',youtube:'b-youtube',
+  alquiler:'b-alquiler'
+};
+function badge(s){ return `<span class="badge ${SC[s]||'b-pendiente'}">${SL[s]||s}</span>`; }
+
+function save(){
+  localStorage.setItem('ngd_inmuebles', JSON.stringify(inmuebles));
+  localStorage.setItem('ngd_clientes',  JSON.stringify(clientes));
+  localStorage.setItem('ngd_prods',     JSON.stringify(prods));
+}
+function toast(msg='✓ Guardado'){
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+/* ── Navigation ── */
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(el) el.classList.add('active');
+  const fn={resumen:renderResumen,inmuebles:renderInmuebles,clientes:renderClientes,producciones:renderProds,reportes:renderReportes};
+  if(fn[id]) fn[id]();
+}
+
+function toggleForm(id){
+  const f=document.getElementById(id); f.classList.toggle('open');
+  if(f.classList.contains('open')&&id==='prod-form'){
+    document.getElementById('pf-date').value=new Date().toISOString().split('T')[0];
+    updateProdInmuebleSelect();
+  }
+}
+
+/* ── INMUEBLES ── */
+function openInmuebleForm(id=null){
+  editingInmId=id;
+  const f=document.getElementById('inmueble-form');
+  document.getElementById('inmueble-form-title').textContent=id?'Editar inmueble':'Nuevo inmueble';
+  if(id){
+    const inm=inmuebles.find(x=>x.id===id);
+    document.getElementById('if-nombre').value=inm.nombre||'';
+    document.getElementById('if-tipo').value=inm.tipo||'Casa';
+    document.getElementById('if-zona').value=inm.zona||'';
+    document.getElementById('if-dir').value=inm.dir||'';
+    document.getElementById('if-op').value=inm.op||'Venta';
+    document.getElementById('if-valor').value=inm.valor||'';
+    document.getElementById('if-comm').value=inm.comm||5;
+    document.getElementById('if-m2').value=inm.m2||'';
+    document.getElementById('if-estado').value=inm.estado||'disponible';
+    document.getElementById('if-rec').value=inm.rec||'';
+    document.getElementById('if-ban').value=inm.ban||'';
+    document.getElementById('if-park').value=inm.park||'';
+    document.getElementById('if-agente').value=inm.agente||'';
+    document.getElementById('if-mapaddr').value=inm.mapaddr||'';
+    if(inm.mapaddr){
+      const src='https://maps.google.com/maps?q='+encodeURIComponent(inm.mapaddr)+'&output=embed&hl=es';
+      document.getElementById('if-map-frame').src=src;
+      document.getElementById('if-map-addr-label').textContent=inm.mapaddr;
+      document.getElementById('if-map-preview').style.display='block';
+    } else {
+      document.getElementById('if-map-preview').style.display='none';
+      document.getElementById('if-map-frame').src='';
+    }
+    document.getElementById('if-notas').value=inm.notas||'';
+    previewComm();
+  } else {
+    ['if-nombre','if-zona','if-dir','if-mapaddr','if-m2','if-rec','if-ban','if-park','if-agente','if-notas','if-valor'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('if-map-preview').style.display='none';
+    document.getElementById('if-map-frame').src='';
+    document.getElementById('if-comm').value='5';
+    document.getElementById('if-comm-preview').classList.remove('show');
+  }
+  f.classList.add('open');
+  f.scrollIntoView({behavior:'smooth'});
+}
+
+function closeInmuebleForm(){
+  document.getElementById('inmueble-form').classList.remove('open');
+  document.getElementById('if-comm-preview').classList.remove('show');
+  editingInmId=null;
+}
+
+function previewComm(){
+  const val=parseFloat(document.getElementById('if-valor').value)||0;
+  const pct=parseFloat(document.getElementById('if-comm').value)||0;
+  const prev=document.getElementById('if-comm-preview');
+  if(val>0&&pct>0){
+    const tot=val*pct/100;
+    document.getElementById('icp-total').textContent=fmt(tot);
+    document.getElementById('icp-nug').textContent=fmt(tot/2);
+    document.getElementById('icp-soc').textContent=fmt(tot/2);
+    prev.classList.add('show');
+  } else { prev.classList.remove('show'); }
+}
+
+function saveInmueble(){
+  const nombre=document.getElementById('if-nombre').value.trim();
+  if(!nombre){alert('El nombre del inmueble es obligatorio');return;}
+  const data={
+    nombre, tipo:document.getElementById('if-tipo').value,
+    zona:document.getElementById('if-zona').value.trim(),
+    dir:document.getElementById('if-dir').value.trim(),
+    op:document.getElementById('if-op').value,
+    valor:parseFloat(document.getElementById('if-valor').value)||0,
+    comm:parseFloat(document.getElementById('if-comm').value)||5,
+    m2:document.getElementById('if-m2').value.trim(),
+    estado:document.getElementById('if-estado').value,
+    rec:document.getElementById('if-rec').value.trim(),
+    ban:document.getElementById('if-ban').value.trim(),
+    park:document.getElementById('if-park').value.trim(),
+    agente:document.getElementById('if-agente').value.trim(),
+    mapaddr:document.getElementById('if-mapaddr').value.trim(),
+    notas:document.getElementById('if-notas').value.trim(),
+  };
+  if(editingInmId){
+    const idx=inmuebles.findIndex(x=>x.id===editingInmId);
+    inmuebles[idx]={...inmuebles[idx],...data};
+  } else {
+    inmuebles.push({id:Date.now(),...data});
+  }
+  save(); closeInmuebleForm(); renderInmuebles(); renderResumen();
+  toast(editingInmId?'✓ Inmueble actualizado':'✓ Inmueble guardado');
+  editingInmId=null;
+}
+
+function deleteInmueble(id){
+  if(!confirm('¿Eliminar este inmueble? También se eliminarán sus interesados asociados.'))return;
+  inmuebles=inmuebles.filter(x=>x.id!==id);
+  clientes=clientes.filter(x=>x.inmuebleId!==id);
+  save(); renderInmuebles(); renderResumen(); renderClientes();
+}
+
+function setInmFilter(f,el){
+  inmFilter=f;
+  document.querySelectorAll('#page-inmuebles .filter-chip').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active'); renderInmuebles();
+}
+
+let inmView='grid';
+
+function setView(v){
+  inmView=v;
+  ['grid','list','table'].forEach(n=>{
+    const btn=document.getElementById('view-'+n);
+    if(btn){btn.style.background=n===v?'var(--navy)':'transparent';btn.style.color=n===v?'#fff':'var(--text-2)';}
+  });
+  renderInmuebles();
+}
+
+function sortInmuebles(arr){
+  const s=(document.getElementById('inm-sort')||{value:'reciente'}).value;
+  const copy=[...arr];
+  if(s==='reciente')   return copy.sort((a,b)=>b.id-a.id);
+  if(s==='antiguo')    return copy.sort((a,b)=>a.id-b.id);
+  if(s==='valor-desc') return copy.sort((a,b)=>(b.valor||0)-(a.valor||0));
+  if(s==='valor-asc')  return copy.sort((a,b)=>(a.valor||0)-(b.valor||0));
+  if(s==='nombre')     return copy.sort((a,b)=>a.nombre.localeCompare(b.nombre));
+  if(s==='zona')       return copy.sort((a,b)=>(a.zona||'').localeCompare(b.zona||''));
+  return copy;
+}
+
+function inmActionBtns(inm){
+  const pub=inm.publicado&&inm.publicado.length>0;
+  const pubBtn=pub
+    ? `<button class="btn btn-sm" style="background:#E8F5E9;color:#059669;border:1px solid #6ee7b7;" onclick="openPubModal(${inm.id})" title="Publicado en: ${(inm.publicado||[]).map(r=>REDES[r]).join(', ')}">✅ Publicado</button>`
+    : `<button class="btn btn-outline btn-sm" onclick="openPubModal(${inm.id})" title="Marcar como publicado">📢 Publicar</button>`;
+  return `<button class="btn btn-green btn-sm" onclick="openModalInteresado(${inm.id})">+ Interesado</button>
+    <button class="btn btn-outline btn-sm" onclick="openDetalle(${inm.id})">Ver detalle</button>
+    ${inm.mapaddr?`<button class="btn btn-outline btn-sm" onclick="openMapsExternal('${encodeURIComponent(inm.mapaddr||'')}')">📍</button>`:''}
+    ${inm.mapaddr?`<button class="btn btn-outline btn-sm" onclick="shareWhatsApp(${inm.id})">💬</button>`:''}
+    ${pubBtn}
+    <button class="btn btn-outline btn-sm" onclick="openInmuebleForm(${inm.id})">Editar</button>
+    <button class="btn btn-danger btn-sm" onclick="deleteInmueble(${inm.id})">✕</button>`;
+}
+
+function renderInmuebles(){
+  const search=(document.getElementById('inm-search')||{value:''}).value.toLowerCase().trim();
+  const grid=document.getElementById('inmueble-grid');
+  let filtered=inmuebles.filter(i=>{
+    if(!search){
+      return inmFilter==='todos'||i.estado===inmFilter;
+    }
+    // Coincidencia en datos del inmueble
+    const matchInmueble = i.nombre.toLowerCase().includes(search)
+      || (i.zona||'').toLowerCase().includes(search)
+      || (i.dir||'').toLowerCase().includes(search)
+      || (i.tipo||'').toLowerCase().includes(search)
+      || (i.agente||'').toLowerCase().includes(search);
+    // Coincidencia en redes donde fue publicado (ej. "facebook", "instagram")
+    const matchRedes = (i.publicado||[]).some(r => (REDES[r]||'').toLowerCase().includes(search) || r.toLowerCase().includes(search));
+    // Coincidencia en interesados vinculados: nombre o telefono
+    const matchInteresado = clientes.some(c =>
+      c.inmuebleId===i.id && (
+        (c.nombre||'').toLowerCase().includes(search) ||
+        (c.tel||'').replace(/\s|-/g,'').includes(search.replace(/\s|-/g,''))
+      )
+    );
+    const ms = matchInmueble || matchRedes || matchInteresado;
+    const mf = inmFilter==='todos'||i.estado===inmFilter;
+    return ms && mf;
+  });
+  filtered=sortInmuebles(filtered);
+  if(!filtered.length){
+    grid.className='';
+    grid.innerHTML='<div class="empty-state"><p>No hay inmuebles para mostrar</p></div>';
+    return;
+  }
+
+  // GRID VIEW
+  if(inmView==='grid'){
+    grid.className='inmueble-grid';
+    grid.innerHTML=filtered.map(inm=>{
+      const ints=clientes.filter(c=>c.inmuebleId===inm.id);
+      const comm=(inm.valor||0)*(inm.comm||0)/100;
+      const fechaIngreso=new Date(inm.id).toLocaleDateString('es-SV');
+      return `<div class="inmueble-card">
+        <div class="inmueble-card-head">
+          <div style="flex:1;">
+            <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:3px;">Ingresado: ${fechaIngreso}</div>
+            <div class="inmueble-card-title">${inm.tipo} · ${inm.nombre}</div>
+          </div>
+          ${badge(inm.estado)}
+        </div>
+        <div class="inmueble-card-body">
+          <div class="inmueble-row"><span class="inmueble-row-label">Zona</span><span class="inmueble-row-val">${inm.zona||'—'}${inm.dir?' · '+inm.dir:''}</span></div>
+          <div class="inmueble-row"><span class="inmueble-row-label">Operación</span><span class="inmueble-row-val">${inm.op||'—'}</span></div>
+          <div class="inmueble-row"><span class="inmueble-row-label">Valor</span><span class="inmueble-row-val" style="color:var(--navy);font-size:15px;">${inm.valor?fmt(inm.valor):'—'}</span></div>
+          ${inm.rec||inm.ban?`<div class="inmueble-row"><span class="inmueble-row-label">Características</span><span class="inmueble-row-val">${[inm.rec?inm.rec+' rec.':null,inm.ban?inm.ban+' baños':null,inm.park?inm.park+' parq.':null].filter(Boolean).join(' · ')}</span></div>`:''}
+          <div class="inmueble-row"><span class="inmueble-row-label">Comisión (${inm.comm||5}%)</span><span class="inmueble-row-val" style="color:var(--amber);">${comm?fmt(comm):'—'}</span></div>
+          <div class="inmueble-row"><span class="inmueble-row-label">CSBR 50%</span><span class="inmueble-row-val" style="color:var(--green);">${comm?fmt(comm/2):'—'}</span></div>
+          ${inm.agente?`<div class="inmueble-row"><span class="inmueble-row-label">Agente</span><span class="inmueble-row-val">${inm.agente}</span></div>`:''}
+        </div>
+        ${inm.publicado&&inm.publicado.length>0?`<div style="padding:8px 12px;border-top:1px solid var(--border);background:#F0FDF4;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          <span style="font-size:11px;font-weight:600;color:#059669;">📢 Publicado en:</span>
+          ${pubBadges(inm)}
+          ${inm.pubFecha?`<span style="font-size:10px;color:#6B7280;margin-left:auto;">${new Date(inm.pubFecha).toLocaleDateString('es-SV')}</span>`:''}
+        </div>`:''}
+        ${inm.mapaddr?`<div style="border-top:1px solid var(--border);overflow:hidden;">
+          <iframe src="https://maps.google.com/maps?q=${encodeURIComponent(inm.mapaddr||'')}&output=embed&hl=es" width="100%" height="160" style="border:0;display:block;" allowfullscreen loading="lazy"></iframe>
+        </div>`:''}
+        <div class="inmueble-card-footer">
+          <span class="interesados-count">👥 ${ints.length} interesado${ints.length!==1?'s':''}</span>
+          ${inmActionBtns(inm)}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // LIST VIEW
+  else if(inmView==='list'){
+    grid.className='';
+    grid.innerHTML='<div style="display:flex;flex-direction:column;gap:8px;">'+
+    filtered.map(inm=>{
+      const ints=clientes.filter(c=>c.inmuebleId===inm.id);
+      const comm=(inm.valor||0)*(inm.comm||0)/100;
+      const fechaIngreso=new Date(inm.id).toLocaleDateString('es-SV');
+      return `<div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);display:flex;align-items:center;overflow:hidden;">
+        <div style="background:var(--navy);padding:12px 16px;min-width:190px;flex-shrink:0;align-self:stretch;display:flex;flex-direction:column;justify-content:center;">
+          <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:2px;">${fechaIngreso}</div>
+          <div style="font-size:13px;font-weight:600;color:#fff;">${inm.tipo}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:2px;line-height:1.3;">${inm.nombre}</div>
+          <div style="margin-top:6px;">${badge(inm.estado)}</div>
+        </div>
+        <div style="flex:1;display:grid;grid-template-columns:repeat(5,1fr);">
+          <div style="padding:10px 12px;border-right:1px solid var(--border);"><div style="font-size:10px;color:var(--text-3);text-transform:uppercase;margin-bottom:3px;">Zona</div><div style="font-size:12px;">${inm.zona||'—'}</div></div>
+          <div style="padding:10px 12px;border-right:1px solid var(--border);"><div style="font-size:10px;color:var(--text-3);text-transform:uppercase;margin-bottom:3px;">Operación</div><div style="font-size:12px;">${inm.op||'—'}</div></div>
+          <div style="padding:10px 12px;border-right:1px solid var(--border);"><div style="font-size:10px;color:var(--text-3);text-transform:uppercase;margin-bottom:3px;">Valor</div><div style="font-size:13px;font-weight:700;color:var(--navy);">${inm.valor?fmt(inm.valor):'—'}</div></div>
+          <div style="padding:10px 12px;border-right:1px solid var(--border);"><div style="font-size:10px;color:var(--text-3);text-transform:uppercase;margin-bottom:3px;">Comisión</div><div style="font-size:12px;font-weight:600;color:var(--amber);">${comm?fmt(comm):'—'}</div></div>
+          <div style="padding:10px 12px;"><div style="font-size:10px;color:var(--text-3);text-transform:uppercase;margin-bottom:3px;">CSBR 50%</div><div style="font-size:12px;font-weight:600;color:var(--green);">${comm?fmt(comm/2):'—'}</div></div>
+        </div>
+        <div style="padding:8px 12px;display:flex;flex-direction:column;gap:4px;flex-shrink:0;border-left:1px solid var(--border);">
+          <div style="font-size:11px;color:var(--text-3);text-align:center;margin-bottom:2px;">👥 ${ints.length}</div>
+          ${inmActionBtns(inm)}
+        </div>
+      </div>`;
+    }).join('')+'</div>';
+  }
+
+  // TABLE VIEW
+  else if(inmView==='table'){
+    grid.className='view-table';
+    grid.innerHTML=`<table class="inm-table"><thead><tr>
+      <th>Ingresado</th><th>Inmueble</th><th>Tipo</th><th>Zona</th><th>Operación</th>
+      <th>Valor</th><th>Comisión</th><th>CSBR 50%</th><th>Estado</th><th>Publicado</th><th>👥</th><th>Acciones</th>
+    </tr></thead><tbody>${
+      filtered.map(inm=>{
+        const ints=clientes.filter(c=>c.inmuebleId===inm.id);
+        const comm=(inm.valor||0)*(inm.comm||0)/100;
+        const fechaIngreso=new Date(inm.id).toLocaleDateString('es-SV');
+        return `<tr>
+          <td style="font-size:11px;color:var(--text-3);white-space:nowrap;">${fechaIngreso}</td>
+          <td><div style="font-weight:600;color:var(--navy);">${inm.nombre}</div>${inm.agente?`<div style="font-size:11px;color:var(--text-3);">${inm.agente}</div>`:''}</td>
+          <td>${inm.tipo}</td>
+          <td>${inm.zona||'—'}</td>
+          <td>${inm.op||'—'}</td>
+          <td style="font-weight:700;color:var(--navy);">${inm.valor?fmt(inm.valor):'—'}</td>
+          <td style="font-weight:600;color:var(--amber);">${comm?fmt(comm):'—'}</td>
+          <td style="font-weight:700;color:var(--green);">${comm?fmt(comm/2):'—'}</td>
+          <td>${badge(inm.estado)}</td>
+          <td>${inm.publicado&&inm.publicado.length?pubBadges(inm):'<span style="font-size:11px;color:var(--text-3);">Sin publicar</span>'}</td>
+          <td style="text-align:center;font-weight:600;color:var(--navy);">${ints.length}</td>
+          <td style="white-space:nowrap;">${inmActionBtns(inm)}</td>
+        </tr>`;
+      }).join('')
+    }</tbody></table>`;
+  }
+}
+
+/* ── MODAL Interesado ── */
+let editingClienteId=null;
+
+function openModalInteresado(inmuebleId){
+  editingClienteId=null;
+  const inm=inmuebles.find(x=>x.id===inmuebleId);
+  document.getElementById('mi-inmueble-id').value=inmuebleId;
+  document.getElementById('modal-inmueble-label').textContent=inm?inm.nombre:'—';
+  document.getElementById('modal-interesado-title').textContent='Agregar interesado';
+  document.getElementById('mi-fecha').value=new Date().toISOString().split('T')[0];
+  ['mi-nombre','mi-tel','mi-notas','mi-fecha-visita','mi-hora-visita'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('mi-estado').value='interesado';
+  document.getElementById('modal-interesado').classList.add('open');
+}
+
+function editInteresado(clienteId){
+  const c=clientes.find(x=>x.id===clienteId);
+  if(!c)return;
+  editingClienteId=clienteId;
+  document.getElementById('mi-inmueble-id').value=c.inmuebleId;
+  document.getElementById('modal-inmueble-label').textContent=c.inmuebleNombre||'—';
+  document.getElementById('modal-interesado-title').textContent='Editar interesado';
+  document.getElementById('mi-nombre').value=c.nombre||'';
+  document.getElementById('mi-tel').value=c.tel||'';
+  document.getElementById('mi-fecha').value=c.fecha||new Date().toISOString().split('T')[0];
+  document.getElementById('mi-canal').value=c.canal||'Facebook Marketplace';
+  document.getElementById('mi-estado').value=c.estado||'interesado';
+  document.getElementById('mi-fecha-visita').value=c.fechaVisita||'';
+  document.getElementById('mi-hora-visita').value=c.horaVisita||'';
+  document.getElementById('mi-notas').value=c.notas||'';
+  document.getElementById('modal-interesado').classList.add('open');
+}
+
+function closeModal(){ document.getElementById('modal-interesado').classList.remove('open'); editingClienteId=null; }
+
+function saveInteresado(){
+  const nombre=document.getElementById('mi-nombre').value.trim();
+  if(!nombre){alert('El nombre es obligatorio');return;}
+  const inmId=parseInt(document.getElementById('mi-inmueble-id').value);
+  const inm=inmuebles.find(x=>x.id===inmId);
+  const data={
+    inmuebleId:inmId,
+    inmuebleNombre:inm?inm.nombre:'—',
+    inmuebleZona:inm?inm.zona:'—',
+    inmuebleValor:inm?inm.valor:0,
+    inmuebleComm:inm?inm.comm:5,
+    nombre, tel:document.getElementById('mi-tel').value.trim(),
+    canal:document.getElementById('mi-canal').value,
+    estado:document.getElementById('mi-estado').value,
+    fecha:document.getElementById('mi-fecha').value,
+    fechaVisita:document.getElementById('mi-fecha-visita').value,
+    horaVisita:document.getElementById('mi-hora-visita').value,
+    notas:document.getElementById('mi-notas').value.trim()
+  };
+  if(editingClienteId){
+    const idx=clientes.findIndex(x=>x.id===editingClienteId);
+    if(idx>-1) clientes[idx]={...clientes[idx],...data};
+  } else {
+    clientes.push({id:Date.now(),...data});
+  }
+  save(); closeModal(); renderInmuebles(); renderClientes(); renderResumen();
+  toast(editingClienteId?'✓ Interesado actualizado':'✓ Interesado guardado');
+  editingClienteId=null;
+}
+
+/* ── MODAL Detalle ── */
+function openDetalle(id){
+  const inm=inmuebles.find(x=>x.id===id);
+  const ints=clientes.filter(c=>c.inmuebleId===id);
+  const comm=(inm.valor||0)*(inm.comm||0)/100;
+  document.getElementById('det-title').textContent=inm.nombre;
+  document.getElementById('det-add-btn').onclick=()=>{
+    document.getElementById('modal-detalle').classList.remove('open');
+    openModalInteresado(id);
+  };
+  const mapsBtn=document.getElementById('det-maps-btn');
+  const waBtn=document.getElementById('det-wa-btn');
+  if(inm.mapaddr){
+    mapsBtn.style.display='inline-flex'; mapsBtn.onclick=()=>window.open('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(inm.mapaddr),'_blank');
+    waBtn.style.display='inline-flex'; waBtn.onclick=()=>shareWhatsApp(id);
+  } else {
+    mapsBtn.style.display='none'; waBtn.style.display='none';
+  }
+  document.getElementById('det-body').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;">
+      <div style="background:var(--bg);border-radius:var(--radius-sm);padding:12px 14px;">
+        <div style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">Ficha del inmueble</div>
+        <div class="inmueble-row"><span class="inmueble-row-label">Tipo</span><span class="inmueble-row-val">${inm.tipo}</span></div>
+        <div class="inmueble-row"><span class="inmueble-row-label">Operación</span><span class="inmueble-row-val">${inm.op}</span></div>
+        <div class="inmueble-row"><span class="inmueble-row-label">Zona</span><span class="inmueble-row-val">${inm.zona||'—'}</span></div>
+        <div class="inmueble-row"><span class="inmueble-row-label">Dirección</span><span class="inmueble-row-val">${inm.dir||'—'}</span></div>
+        <div class="inmueble-row"><span class="inmueble-row-label">m²</span><span class="inmueble-row-val">${inm.m2||'—'}</span></div>
+        <div class="inmueble-row"><span class="inmueble-row-label">Rec. / Baños / Parq.</span><span class="inmueble-row-val">${inm.rec||'—'} / ${inm.ban||'—'} / ${inm.park||'—'}</span></div>
+        <div class="inmueble-row"><span class="inmueble-row-label">Estado</span><span class="inmueble-row-val">${badge(inm.estado)}</span></div>
+        ${inm.mapaddr?`<div class="inmueble-row"><span class="inmueble-row-label">Dirección mapa</span><span class="inmueble-row-val"><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(inm.mapaddr||'')}" target="_blank" style="color:var(--blue);text-decoration:none;font-weight:600;">📍 Ver en Google Maps</a></span></div>`:''}
+        ${inm.notas?`<div style="margin-top:8px;font-size:12px;color:var(--text-2);">${inm.notas}</div>`:''}
+      </div>
+      <div style="background:var(--bg);border-radius:var(--radius-sm);padding:12px 14px;">
+        <div style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">Comisiones</div>
+        <div class="inmueble-row"><span class="inmueble-row-label">Valor</span><span class="inmueble-row-val">${inm.valor?fmt(inm.valor):'—'}</span></div>
+        <div class="inmueble-row"><span class="inmueble-row-label">% Comisión</span><span class="inmueble-row-val">${inm.comm||5}%</span></div>
+        <div class="inmueble-row"><span class="inmueble-row-label">Comisión total</span><span class="inmueble-row-val" style="color:var(--amber);font-size:15px;">${comm?fmt(comm):'—'}</span></div>
+        <div class="inmueble-row"><span class="inmueble-row-label">CSBR 50%</span><span class="inmueble-row-val" style="color:var(--green);font-size:15px;">${comm?fmt(comm/2):'—'}</span></div>
+        <div class="inmueble-row"><span class="inmueble-row-label">Socio 50%</span><span class="inmueble-row-val" style="font-size:15px;">${comm?fmt(comm/2):'—'}</span></div>
+        <div class="inmueble-row"><span class="inmueble-row-label">Agente</span><span class="inmueble-row-val">${inm.agente||'—'}</span></div>
+      </div>
+    </div>
+    ${inm.mapaddr?`<div style="border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);margin-bottom:16px;">
+      <div style="padding:8px 12px;background:var(--bg);font-size:12px;font-weight:600;color:var(--navy);">📍 Ubicación de la propiedad</div>
+      <iframe src="https://maps.google.com/maps?q=${encodeURIComponent(inm.mapaddr||'')}&output=embed&hl=es" width="100%" height="200" style="border:0;display:block;" allowfullscreen loading="lazy"></iframe>
+    </div>`:''}
+    <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:10px;">Interesados (${ints.length})</div>
+    ${ints.length?ints.map(c=>`
+      <div class="interesado-row">
+        <div>
+          <div style="font-weight:600;font-size:13px;">${c.nombre}</div>
+          <div style="font-size:11px;color:var(--text-3);">${c.tel||'—'} · ${c.canal||'—'} · Contacto: ${c.fecha||'—'}</div>
+          ${c.fechaVisita?`<div style="font-size:11px;color:var(--purple);font-weight:600;margin-top:2px;">📅 Visita: ${new Date(c.fechaVisita+'T00:00').toLocaleDateString('es-SV')}${c.horaVisita?' a las '+c.horaVisita:''}</div>`:''}
+          ${c.notas?`<div style="font-size:11px;color:var(--text-2);margin-top:2px;">${c.notas}</div>`:''}
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          ${badge(c.estado)}
+          <select class="status-select ${SC[c.estado]||'b-pendiente'}" onchange="updateClientStatus(${c.id},this.value,this)">
+            ${[['interesado','Interesado'],['visita-programada','Visita prog.'],['visitada','Visitó'],['programada','Prod. prog.'],['cerrada','Cerrado'],['pendiente','Pendiente']].map(([v,l])=>`<option value="${v}"${v===c.estado?' selected':''}>${l}</option>`).join('')}
+          </select>
+          <button class="btn btn-danger btn-sm" onclick="deleteCliente(${c.id},${id})">×</button>
+        </div>
+      </div>`).join(''):'<div class="empty-state" style="padding:20px 0;"><p>Sin interesados aún · usa el botón de abajo</p></div>'}`;
+  document.getElementById('modal-detalle').classList.add('open');
+}
+
+/* ── CLIENTES / INTERESADOS ── */
+function updateClientStatus(id,val,sel){
+  const c=clientes.find(x=>x.id===id); if(c){c.estado=val;save();renderClientes();renderResumen();}
+  sel.className=`status-select ${SC[val]||'b-pendiente'}`; toast();
+}
+
+function deleteCliente(id, inmId){
+  if(!confirm('¿Eliminar este interesado?'))return;
+  clientes=clientes.filter(x=>x.id!==id); save();
+  document.getElementById('modal-detalle').classList.remove('open');
+  renderClientes(); renderResumen(); openDetalle(inmId);
+}
+
+function setCFilter(f,el){
+  cFilter=f;
+  document.querySelectorAll('#page-clientes .filter-chip').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active'); renderClientes();
+}
+
+function renderClientes(){
+  const search=(document.getElementById('client-search')||{value:''}).value.toLowerCase().trim();
+  const filtered=clientes.filter(c=>{
+    const ms=!search
+      || c.nombre.toLowerCase().includes(search)
+      || (c.inmuebleNombre||'').toLowerCase().includes(search)
+      || (c.inmuebleZona||'').toLowerCase().includes(search)
+      || (c.tel||'').replace(/\s|-/g,'').includes(search.replace(/\s|-/g,''));
+    const mf=cFilter==='todos'||c.estado===cFilter;
+    return ms&&mf;
+  });
+  const tbody=document.getElementById('clients-tbody');
+  const empty=document.getElementById('clients-empty');
+  const count=document.getElementById('client-count');
+  if(count) count.textContent=`${filtered.length} interesado${filtered.length!==1?'s':''}`;
+  if(!filtered.length){tbody.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  tbody.innerHTML=filtered.map(c=>{
+    const comm=(c.inmuebleValor||0)*(c.inmuebleComm||5)/100;
+    return `<tr>
+      <td><div class="td-bold">${c.nombre}</div>${c.notas?`<div class="td-sub">${c.notas.substring(0,40)}${c.notas.length>40?'…':''}</div>`:''}</td>
+      <td>${c.tel||'—'}</td>
+      <td><div class="td-bold">${c.inmuebleNombre||'—'}</div><div class="td-sub">${c.canal||''}</div></td>
+      <td>${c.inmuebleZona||'—'}</td>
+      <td style="color:var(--amber);font-weight:600;">${comm?fmt(comm):'—'}</td>
+      <td style="color:var(--green);font-weight:600;">${comm?fmt(comm/2):'—'}</td>
+      <td>${c.fecha||'—'}</td>
+      <td>${c.fechaVisita?`<strong style="color:var(--purple);">${new Date(c.fechaVisita+'T00:00').toLocaleDateString('es-SV')}</strong>${c.horaVisita?' '+c.horaVisita:''}`:'<span style="color:var(--text-3);">—</span>'}</td>
+      <td><select class="status-select ${SC[c.estado]||'b-pendiente'}" onchange="updateClientStatus(${c.id},this.value,this)">
+        ${[['interesado','Interesado'],['visita-programada','Visita prog.'],['visitada','Visitó'],['programada','Prod. prog.'],['cerrada','Cerrado'],['pendiente','Pendiente']].map(([v,l])=>`<option value="${v}"${v===c.estado?' selected':''}>${l}</option>`).join('')}
+      </select></td>
+      <td><button class="btn btn-outline btn-sm" onclick="editInteresado(${c.id})">✏️ Editar</button></td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── PRODUCCIONES ── */
+function updateProdInmuebleSelect(){
+  const sel=document.getElementById('pf-inmueble');
+  sel.innerHTML='<option value="">— Selecciona un inmueble —</option>'+
+    inmuebles.map(i=>`<option value="${i.id}">${i.tipo} · ${i.nombre}</option>`).join('');
+}
+
+function updateProdStatus(id,val,sel){
+  const p=prods.find(x=>x.id===id); if(p){p.status=val;save();renderProds();}
+  sel.className=`status-select ${SC[val]||'b-pendiente'}`; toast();
+}
+
+function saveProd(){
+  const inmId=parseInt(document.getElementById('pf-inmueble').value)||0;
+  if(!inmId){alert('Selecciona un inmueble');return;}
+  const inm=inmuebles.find(x=>x.id===inmId);
+  prods.push({
+    id:Date.now(), inmuebleId:inmId,
+    prop:inm?inm.nombre:'—',
+    agent:document.getElementById('pf-agent').value.trim(),
+    date:document.getElementById('pf-date').value,
+    tipo:document.getElementById('pf-tipo').value,
+    status:document.getElementById('pf-status').value,
+    notes:document.getElementById('pf-notes').value.trim()
+  });
+  save(); toggleForm('prod-form'); renderProds(); renderResumen(); toast();
+}
+
+function deleteProd(id){
+  if(!confirm('¿Eliminar?'))return;
+  prods=prods.filter(p=>p.id!==id); save(); renderProds(); renderResumen();
+}
+
+function renderProds(){
+  const list=document.getElementById('prod-list');
+  ['pm-total','pm-prog','pm-edit','pm-done'].forEach((elId,i)=>{
+    const el=document.getElementById(elId); if(!el)return;
+    const counts=[prods.length,prods.filter(p=>p.status==='programada').length,prods.filter(p=>p.status==='en edicion').length,prods.filter(p=>p.status==='entregada'||p.status==='youtube').length];
+    el.textContent=counts[i];
+  });
+  if(!prods.length){list.innerHTML='<div class="empty-state"><p>Programa tu primera producción</p></div>';return;}
+  list.innerHTML=prods.map(p=>`
+    <div class="prod-card">
+      <div class="prod-left">
+        <div class="prod-title">${p.prop}</div>
+        <div class="prod-meta">Agente: ${p.agent||'—'}${p.notes?' · '+p.notes.substring(0,50):''}</div>
+      </div>
+      <div class="prod-right">
+        <span class="prod-type">${p.tipo||'Fotos + Grabación'}</span>
+        <select class="status-select ${SC[p.status]||'b-pendiente'}" onchange="updateProdStatus(${p.id},this.value,this)">
+          ${[['programada','Programada'],['en rodaje','En rodaje'],['en edicion','En edición'],['entregada','Entregada'],['youtube','En YouTube']].map(([v,l])=>`<option value="${v}"${v===p.status?' selected':''}>${l}</option>`).join('')}
+        </select>
+        <span class="prod-date">${p.date||'—'}</span>
+        <button class="btn btn-danger btn-sm" onclick="deleteProd(${p.id})">Eliminar</button>
+      </div>
+    </div>`).join('');
+}
+
+/* ── REPORTES ── */
+function setDateRange(mode, el){
+  dateMode=mode;
+  const now=new Date(); now.setHours(23,59,59,999);
+  const today=new Date(); today.setHours(0,0,0,0);
+  document.querySelectorAll('#page-reportes .filter-chip').forEach(b=>b.classList.remove('active'));
+  if(el) el.classList.add('active');
+  if(mode==='todo'){dateFrom=null;dateTo=null;}
+  else if(mode==='hoy'){dateFrom=new Date(today);dateTo=new Date(now);}
+  else if(mode==='semana'){
+    const mon=new Date(today); mon.setDate(today.getDate()-today.getDay()+1);
+    dateFrom=mon; dateTo=new Date(now);
+  }
+  else if(mode==='mes'){dateFrom=new Date(today.getFullYear(),today.getMonth(),1);dateTo=new Date(now);}
+  else if(mode==='trimestre'){
+    const qStart=new Date(today.getFullYear(),Math.floor(today.getMonth()/3)*3,1);
+    dateFrom=qStart; dateTo=new Date(now);
+  }
+  else if(mode==='anio'){dateFrom=new Date(today.getFullYear(),0,1);dateTo=new Date(now);}
+  else if(mode==='custom'){
+    const f=document.getElementById('dr-from').value;
+    const t=document.getElementById('dr-to').value;
+    if(!f&&!t)return;
+    dateFrom=f?new Date(f+'T00:00:00'):null;
+    dateTo=t?new Date(t+'T23:59:59'):null;
+    document.querySelectorAll('#page-reportes .filter-chip').forEach(b=>b.classList.remove('active'));
+  }
+  if(mode!=='custom'){
+    document.getElementById('dr-from').value='';
+    document.getElementById('dr-to').value='';
+  }
+  renderReportes();
+}
+
+function clearDateRange(){
+  dateFrom=null; dateTo=null; dateMode='todo';
+  document.getElementById('dr-from').value='';
+  document.getElementById('dr-to').value='';
+  document.querySelectorAll('#page-reportes .filter-chip').forEach(b=>b.classList.remove('active'));
+  document.getElementById('dr-todo').classList.add('active');
+  renderReportes();
+}
+
+function inDateRange(id){
+  if(!dateFrom&&!dateTo) return true;
+  const d=new Date(id);
+  if(dateFrom&&d<dateFrom) return false;
+  if(dateTo&&d>dateTo) return false;
+  return true;
+}
+
+function setRepFilter(f,el){
+  repFilter=f;
+  document.querySelectorAll('#page-reportes .filter-chip').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active'); renderReportes();
+}
+
+let chartInstances={};
+function destroyChart(id){if(chartInstances[id]){chartInstances[id].destroy();delete chartInstances[id];}}
+
+function donutChart(cid,lid,labels,data,colors){
+  destroyChart(cid);
+  const ctx=document.getElementById(cid); if(!ctx)return;
+  chartInstances[cid]=new Chart(ctx,{type:'doughnut',
+    data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:2,borderColor:'#fff'}]},
+    options:{responsive:true,plugins:{legend:{display:false}}}
+  });
+  const leg=document.getElementById(lid);
+  if(leg) leg.innerHTML=labels.map((l,i)=>`<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:#6B7280;margin-bottom:3px;"><span style="width:10px;height:10px;border-radius:50%;background:${colors[i]};display:inline-block;flex-shrink:0;"></span>${l}: <strong style="color:#111;">${data[i]}</strong></div>`).join('');
+}
+
+function barChart(cid,labels,data,colors){
+  destroyChart(cid);
+  const ctx=document.getElementById(cid); if(!ctx)return;
+  chartInstances[cid]=new Chart(ctx,{type:'bar',
+    data:{labels,datasets:[{data,backgroundColor:colors,borderRadius:4,borderSkipped:false}]},
+    options:{responsive:true,plugins:{legend:{display:false}},
+      scales:{y:{ticks:{callback:v=>'$'+v.toLocaleString('es-SV')},grid:{color:'#F3F4F6'}},x:{grid:{display:false}}}}
+  });
+}
+
+function renderReportes(){
+  const allInm=inmuebles.filter(i=>inDateRange(i.id));
+  const vendidos=allInm.filter(i=>i.estado==='vendido');
+  const totalCartera=allInm.reduce((s,i)=>s+(i.valor||0),0);
+  const totalComm=vendidos.reduce((s,i)=>s+(i.valor||0)*(i.comm||5)/100,0);
+  // Update date label
+  const lbl=document.getElementById('dr-label');
+  if(lbl){
+    if(!dateFrom&&!dateTo) lbl.textContent='Mostrando todos los inmuebles registrados ('+inmuebles.length+' total)';
+    else {
+      const f=dateFrom?dateFrom.toLocaleDateString('es-SV'):'inicio';
+      const t=dateTo?dateTo.toLocaleDateString('es-SV'):'hoy';
+      lbl.textContent='Período: '+f+' — '+t+' · '+allInm.length+' inmueble'+(allInm.length!==1?'s':'')+' encontrado'+(allInm.length!==1?'s':'');
+    }
+  }
+  const totalNug=totalComm/2;
+  document.getElementById('rep-cartera').textContent=fmt(totalCartera);
+  document.getElementById('rep-comm').textContent=fmt(totalComm);
+  document.getElementById('rep-nug').textContent=fmt(totalNug);
+  document.getElementById('rep-nug-2').textContent=fmt(totalNug);
+  document.getElementById('rep-soc').textContent=fmt(totalNug);
+
+  /* Gráfico 1: Inmuebles por zona (dona) */
+  const zonaMap={};
+  inmuebles.forEach(i=>{const z=(i.zona||'Sin zona').split(',')[0].trim();zonaMap[z]=(zonaMap[z]||0)+1;});
+  const zL=Object.keys(zonaMap), zD=zL.map(z=>zonaMap[z]);
+  const pal=['#1A3A6B','#F5C400','#2563EB','#059669','#7C3AED','#DC2626','#D97706','#0891B2','#65A30D','#DB2777'];
+  donutChart('chart-zona','chart-zona-legend',zL,zD,pal.slice(0,zL.length));
+
+  /* Gráfico 2: Venta vs Alquiler (dona) */
+  const ventas=inmuebles.filter(i=>i.op==='Venta').length;
+  const alqs=inmuebles.filter(i=>i.op==='Alquiler').length;
+  const ambos=inmuebles.filter(i=>i.op==='Venta o alquiler').length;
+  donutChart('chart-op','chart-op-legend',['Venta','Alquiler','Venta o alquiler'],[ventas,alqs,ambos],['#1A3A6B','#63B22F','#F5C400']);
+
+  /* Gráfico 3: Estado (dona) */
+  const disp=inmuebles.filter(i=>i.estado==='disponible').length;
+  const enP=inmuebles.filter(i=>i.estado==='en-proceso').length;
+  const vend=inmuebles.filter(i=>i.estado==='vendido').length;
+  donutChart('chart-estado','chart-estado-legend',['Disponible','En proceso','Vendido'],[disp,enP,vend],['#63B22F','#1A3A6B','#F5C400']);
+
+  /* Gráfico 4: Valor por zona (barras) */
+  const zvMap={};
+  inmuebles.forEach(i=>{const z=(i.zona||'Sin zona').split(',')[0].trim();zvMap[z]=(zvMap[z]||0)+(i.valor||0);});
+  const zvL=Object.keys(zvMap), zvD=zvL.map(z=>zvMap[z]);
+  barChart('chart-zona-valor',zvL,zvD,pal.slice(0,zvL.length));
+
+  /* Tabla */
+  let filtered=allInm;
+  if(repFilter==='vendido') filtered=allInm.filter(i=>i.estado==='vendido');
+  if(repFilter==='disponible') filtered=allInm.filter(i=>i.estado==='disponible');
+  const rows=document.getElementById('rep-rows');
+  if(!filtered.length){rows.innerHTML='<div class="empty-state"><p>No hay inmuebles</p></div>';return;}
+  rows.innerHTML=filtered.map(i=>{
+    const comm=(i.valor||0)*(i.comm||5)/100;
+    const isV=i.estado==='vendido';
+    return `<div class="comm-row" style="${isV?'background:#f0fdf4':''}">
+      <div><div style="font-weight:600;color:var(--navy);font-size:13px;">${i.tipo} · ${i.nombre}</div>
+      <div style="font-size:11px;color:var(--text-3);">${i.zona||'—'}${isV?' · <span style="color:var(--green);font-weight:600;">✓ Vendido</span>':''}</div></div>
+      <div style="font-size:13px;font-weight:500;">${i.valor?fmt(i.valor):'—'}</div>
+      <div style="font-size:13px;">${i.comm||5}%</div>
+      <div style="font-size:13px;font-weight:600;color:var(--amber);">${comm?fmt(comm):'—'}</div>
+      <div style="font-size:13px;font-weight:700;color:var(--green);">${comm?fmt(comm/2):'—'}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ── Publicaciones en redes ── */
+const REDES = {fb:'Facebook',ig:'Instagram',yt:'YouTube',mk:'Encuentra24 / Portales',wa:'WhatsApp',en:'TikTok / Otro'};
+const REDES_CLASS = {fb:'fb',ig:'ig',yt:'yt',mk:'mk',wa:'wa',en:'en'};
+
+function openPubModal(id){
+  const inm=inmuebles.find(x=>x.id===id);
+  document.getElementById('pub-inm-id').value=id;
+  document.getElementById('pub-inm-label').textContent=inm?inm.nombre:'—';
+  document.getElementById('pub-fecha').value=inm&&inm.pubFecha?inm.pubFecha:new Date().toISOString().split('T')[0];
+  document.getElementById('pub-nota').value=inm&&inm.pubNota?inm.pubNota:'';
+  const pub=inm&&inm.publicado?inm.publicado:[];
+  ['fb','ig','yt','mk','wa','en'].forEach(r=>{
+    const cb=document.getElementById('pub-'+r);
+    cb.checked=pub.includes(r);
+    togglePubLabel(r);
+  });
+  document.getElementById('btn-unpub').style.display=pub.length>0?'inline-flex':'none';
+  document.getElementById('modal-publicar').classList.add('open');
+}
+
+function closePubModal(){
+  document.getElementById('modal-publicar').classList.remove('open');
+}
+
+function togglePubLabel(r){
+  const cb=document.getElementById('pub-'+r);
+  const lbl=document.getElementById('lbl-'+r);
+  if(cb.checked){
+    lbl.style.borderColor=r==='fb'?'#1877F2':r==='ig'?'#C13584':r==='yt'?'#FF0000':r==='mk'?'#E65100':r==='wa'?'#25D366':'#7C3AED';
+    lbl.style.background='#fff';
+  } else {
+    lbl.style.borderColor='var(--border)';
+    lbl.style.background='var(--bg)';
+  }
+}
+
+function savePub(){
+  const id=parseInt(document.getElementById('pub-inm-id').value);
+  const inm=inmuebles.find(x=>x.id===id); if(!inm)return;
+  const redes=['fb','ig','yt','mk','wa','en'].filter(r=>document.getElementById('pub-'+r).checked);
+  inm.publicado=redes;
+  inm.pubFecha=document.getElementById('pub-fecha').value;
+  inm.pubNota=document.getElementById('pub-nota').value.trim();
+  save(); closePubModal(); renderInmuebles(); renderResumen();
+  toast(redes.length>0?'✓ Publicación guardada':'✓ Publicación actualizada');
+}
+
+function unpublish(){
+  const id=parseInt(document.getElementById('pub-inm-id').value);
+  const inm=inmuebles.find(x=>x.id===id); if(!inm)return;
+  if(!confirm('¿Quitar todas las publicaciones de este inmueble?'))return;
+  inm.publicado=[]; inm.pubFecha=''; inm.pubNota='';
+  save(); closePubModal(); renderInmuebles();
+  toast('✓ Publicación removida');
+}
+
+function pubBadges(inm){
+  const pub=inm.publicado||[];
+  if(!pub.length) return '';
+  return pub.map(r=>`<span class="pub-badge ${REDES_CLASS[r]}">${REDES[r]}</span>`).join('');
+}
+
+/* ── Map Preview ── */
+let mapDebounceTimer=null;
+function debouncedMapPreview(){
+  clearTimeout(mapDebounceTimer);
+  mapDebounceTimer=setTimeout(generateMapPreview,900);
+}
+function generateMapPreview(){
+  const addr=document.getElementById('if-mapaddr').value.trim();
+  if(!addr){clearMapPreview();return;}
+  // Append El Salvador if not present to improve accuracy
+  const query=addr.toLowerCase().includes('el salvador')?addr:addr+', El Salvador';
+  const src='https://maps.google.com/maps?q='+encodeURIComponent(query)+'&output=embed&hl=es';
+  document.getElementById('if-map-frame').src=src;
+  document.getElementById('if-map-addr-label').textContent=addr;
+  document.getElementById('if-map-preview').style.display='block';
+}
+function clearMapPreview(){
+  document.getElementById('if-mapaddr').value='';
+  document.getElementById('if-map-frame').src='';
+  document.getElementById('if-map-preview').style.display='none';
+}
+function openMapsExternal(encodedAddr){
+  window.open('https://www.google.com/maps/search/?api=1&query='+decodeURIComponent(encodedAddr),'_blank');
+}
+
+/* ── Boton flotante: respuesta rapida ── */
+let respuestaInmuebleId=null;
+
+function openRespuestaPicker(){
+  document.getElementById('resp-search').value='';
+  document.getElementById('resp-step-1').style.display='block';
+  document.getElementById('resp-step-2').style.display='none';
+  renderRespuestaList();
+  document.getElementById('modal-respuesta').classList.add('open');
+}
+
+function renderRespuestaList(){
+  const search=(document.getElementById('resp-search')||{value:''}).value.toLowerCase();
+  const list=document.getElementById('resp-list');
+  const filtered=inmuebles.filter(i=>!search||i.nombre.toLowerCase().includes(search)||(i.zona||'').toLowerCase().includes(search));
+  if(!filtered.length){ list.innerHTML='<div class="empty-state" style="padding:24px 0;"><p>No hay inmuebles para mostrar</p></div>'; return; }
+  const sorted=[...filtered].sort((a,b)=>b.id-a.id);
+  list.innerHTML=sorted.map(inm=>{
+    const ints=clientes.filter(c=>c.inmuebleId===inm.id).length;
+    return `<div onclick="selectRespuestaInmueble(${inm.id})" style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:6px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='#fff'">
+      <div>
+        <div style="font-weight:600;font-size:13px;color:var(--navy);">${inm.tipo} · ${inm.nombre}</div>
+        <div style="font-size:11px;color:var(--text-3);">${inm.zona||'—'} · ${inm.valor?fmt(inm.valor):'—'} · ${ints} interesado${ints!==1?'s':''}</div>
+      </div>
+      <span style="font-size:18px;color:var(--text-3);">›</span>
+    </div>`;
+  }).join('');
+}
+
+function selectRespuestaInmueble(inmuebleId){
+  respuestaInmuebleId=inmuebleId;
+  const inm=inmuebles.find(x=>x.id===inmuebleId);
+  document.getElementById('resp-step2-label').textContent=inm?(inm.tipo+' · '+inm.nombre):'—';
+  document.getElementById('resp-step-1').style.display='none';
+  document.getElementById('resp-step-2').style.display='block';
+  renderInteresadosDeInmueble();
+}
+
+function backToStep1(){
+  document.getElementById('resp-step-1').style.display='block';
+  document.getElementById('resp-step-2').style.display='none';
+}
+
+function renderInteresadosDeInmueble(){
+  const ints=clientes.filter(c=>c.inmuebleId===respuestaInmuebleId);
+  const label=document.getElementById('resp-existentes-label');
+  const searchInput=document.getElementById('resp-int-search');
+  const list=document.getElementById('resp-int-list');
+
+  if(!ints.length){
+    label.textContent='Aún no hay interesados en este inmueble';
+    searchInput.style.display='none';
+    list.innerHTML='';
+    return;
+  }
+  label.textContent=`O selecciona uno existente (${ints.length})`;
+  searchInput.style.display='block';
+
+  const search=(searchInput.value||'').toLowerCase();
+  const filtered=ints.filter(c=>!search||c.nombre.toLowerCase().includes(search));
+  const sorted=[...filtered].sort((a,b)=>b.id-a.id);
+
+  if(!sorted.length){
+    list.innerHTML='<div class="empty-state" style="padding:16px 0;"><p>Sin resultados</p></div>';
+    return;
+  }
+
+  list.innerHTML=sorted.map(c=>`
+    <div onclick="editInteresadoDesdeRespuesta(${c.id})" style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:6px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='#fff'">
+      <div>
+        <div style="font-weight:600;font-size:13px;color:var(--navy);">${c.nombre}</div>
+        <div style="font-size:11px;color:var(--text-3);">${c.tel||'sin telefono'} · ${c.canal||'—'}${c.fechaVisita?' · Visita: '+new Date(c.fechaVisita+'T00:00').toLocaleDateString('es-SV'):''}</div>
+      </div>
+      ${badge(c.estado)}
+    </div>`).join('');
+}
+
+function nuevoInteresadoDesdeRespuesta(){
+  document.getElementById('modal-respuesta').classList.remove('open');
+  openModalInteresado(respuestaInmuebleId);
+}
+
+function editInteresadoDesdeRespuesta(clienteId){
+  document.getElementById('modal-respuesta').classList.remove('open');
+  editInteresado(clienteId);
+}
+
+/* ── WhatsApp Share ── */
+function shareWhatsApp(id){
+  const inm=inmuebles.find(x=>x.id===id); if(!inm)return;
+  const comm=(inm.valor||0)*(inm.comm||5)/100;
+
+  // Google Maps links — search link (works without API key)
+  const mapsSearchUrl=inm.mapaddr
+    ? 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(inm.mapaddr+', El Salvador')
+    : null;
+
+  // Ficha profesional — solo caracteres ASCII simples y guiones, sin emoji compuestos
+  // que se corrompen al copiar/pegar en WhatsApp Web o Desktop.
+  const caract=[
+    inm.rec?inm.rec+' recamaras':null,
+    inm.ban?inm.ban+' banos':null,
+    inm.park?inm.park+' parqueos':null
+  ].filter(Boolean).join(' - ');
+
+  const lines=[
+    `${inm.tipo} en ${inm.op}`,
+    `CSBR - Camara Salvadorena de Bienes Raices`,
+    ``,
+    `*${inm.nombre}*`,
+    ``,
+    inm.zona ? `Ubicacion: ${inm.zona}${inm.dir?' - '+inm.dir:''}` : null,
+    inm.valor ? `Valor: ${fmt(inm.valor)}` : null,
+    caract ? `Caracteristicas: ${caract}` : null,
+    inm.m2 ? `Area: ${inm.m2} m2 construidos` : null,
+    inm.agente ? `Agente: ${inm.agente}` : null,
+    inm.notas ? `\n${inm.notas}` : null,
+    ``,
+    mapsSearchUrl ? `Ver ubicacion en el mapa:` : null,
+    mapsSearchUrl ? mapsSearchUrl : null,
+    ``,
+    `-----------------------------`,
+    `Te interesa agendar una visita?`,
+    `Responde *SI* a este mensaje y coordinamos fecha y hora.`,
+    `-----------------------------`,
+    `+503 7923-0594`,
+    `nuguduprodutions@gmail.com`,
+    `-----------------------------`
+  ].filter(v=>v!==null).join('\n');
+
+  // Open WhatsApp with full message
+  window.open('https://wa.me/?text='+encodeURIComponent(lines),'_blank');
+
+  // If mapaddr exists, also open the map link so user can screenshot/share it separately
+  if(inm.mapaddr){
+    // Show a mini modal with the map + copy options
+    showWaMapModal(inm, mapsSearchUrl, lines);
+  }
+}
+
+function showWaMapModal(inm, mapsUrl, waText){
+  // Remove any existing modal
+  const old=document.getElementById('wa-map-modal');
+  if(old) old.remove();
+
+  const modal=document.createElement('div');
+  modal.id='wa-map-modal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;';
+  modal.innerHTML=`
+    <div style="background:#fff;border-radius:12px;width:100%;max-width:520px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.25);">
+      <div style="background:#1A3A6B;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-size:15px;font-weight:600;color:#fff;">💬 Compartir por WhatsApp</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:2px;">${inm.nombre}</div>
+        </div>
+        <button onclick="document.getElementById('wa-map-modal').remove()" style="background:none;border:none;color:rgba(255,255,255,.7);font-size:22px;cursor:pointer;line-height:1;">×</button>
+      </div>
+
+      <!-- Mapa embebido -->
+      <div style="border-bottom:1px solid #E5E7EB;">
+        <div style="padding:8px 14px;background:#F6F7FB;font-size:11px;font-weight:600;color:#6B7280;text-transform:uppercase;letter-spacing:.05em;">📍 Ubicación de la propiedad</div>
+        <iframe src="https://maps.google.com/maps?q=${encodeURIComponent((inm.mapaddr||'')+', El Salvador')}&output=embed&hl=es"
+          width="100%" height="220" style="border:0;display:block;" allowfullscreen loading="lazy"></iframe>
+      </div>
+
+      <!-- Pasos -->
+      <div style="padding:14px 18px;">
+        <div style="font-size:13px;font-weight:600;color:#1A3A6B;margin-bottom:10px;">Cómo compartir el mapa por WhatsApp:</div>
+
+        <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;">
+          <div style="width:22px;height:22px;border-radius:50%;background:#1A3A6B;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">1</div>
+          <div style="font-size:13px;color:#374151;">El mensaje ya se abrió en WhatsApp con todos los datos y el enlace del mapa. Envíalo al contacto.</div>
+        </div>
+
+        <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;">
+          <div style="width:22px;height:22px;border-radius:50%;background:#1A3A6B;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">2</div>
+          <div style="font-size:13px;color:#374151;">Para enviar el mapa como imagen: toma un screenshot de este mapa y envíalo en el mismo chat.</div>
+        </div>
+
+        <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:14px;">
+          <div style="width:22px;height:22px;border-radius:50%;background:#F5C400;color:#1A3A6B;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">3</div>
+          <div style="font-size:13px;color:#374151;">O abre el enlace directo de Maps para compartirlo por separado:</div>
+        </div>
+
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button onclick="window.open('${mapsUrl}','_blank')"
+            style="background:#1A3A6B;color:#fff;border:none;border-radius:6px;padding:9px 16px;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px;">
+            📍 Abrir en Google Maps
+          </button>
+          <button onclick="navigator.clipboard.writeText('${mapsUrl}').then(()=>{this.textContent='✓ Copiado!';setTimeout(()=>this.textContent='📋 Copiar enlace Maps',1500)})"
+            style="background:#F6F7FB;color:#374151;border:1px solid #E5E7EB;border-radius:6px;padding:9px 16px;font-size:13px;font-weight:500;cursor:pointer;">
+            📋 Copiar enlace Maps
+          </button>
+          <button onclick="window.open('https://wa.me/?text='+encodeURIComponent('${mapsUrl}'),'_blank')"
+            style="background:#25D366;color:#fff;border:none;border-radius:6px;padding:9px 16px;font-size:13px;font-weight:500;cursor:pointer;">
+            💬 Enviar solo el mapa
+          </button>
+        </div>
+      </div>
+
+      <!-- Programar cita -->
+      <div style="padding:14px 18px;border-top:1px solid #E5E7EB;background:#FFFBEA;">
+        <div style="font-size:13px;font-weight:600;color:#1A3A6B;margin-bottom:4px;">¿El contacto quiere agendar visita?</div>
+        <div style="font-size:12px;color:#6B7280;margin-bottom:10px;">Registra al interesado y programa la fecha de visita directamente en este inmueble.</div>
+        <button onclick="document.getElementById('wa-map-modal').remove(); openModalInteresado(${inm.id});"
+          style="background:#F5C400;color:#1A3A6B;border:none;border-radius:6px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;width:100%;justify-content:center;">
+          📅 Programar cita / Agregar interesado
+        </button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e=>{ if(e.target===modal) modal.remove(); });
+}
+
+/* ── CSV Export ── */
+function exportCSV(type){
+  let rows=[], headers=[], filename='';
+  if(type==='inmuebles'){
+    filename='CSBR_Inmuebles.csv';
+    headers=['Nombre','Tipo','Zona','Dirección','Operación','Valor $','% Comisión','Comisión total','CSBR 50%','Socio 50%','m2','Recámaras','Baños','Parqueos','Estado','Agente','Notas'];
+    rows=inmuebles.map(i=>{
+      const c=(i.valor||0)*(i.comm||5)/100;
+      return [i.nombre,i.tipo,i.zona,i.dir,i.op,i.valor||0,i.comm||5,c.toFixed(2),(c/2).toFixed(2),(c/2).toFixed(2),i.m2,i.rec,i.ban,i.park,i.estado,i.agente,(i.notas||'').replace(/,/g,';')];
+    });
+  } else {
+    filename='CSBR_Interesados.csv';
+    headers=['Nombre','Teléfono','Inmueble','Zona','Canal','Fecha','Estado','Notas'];
+    rows=clientes.map(c=>[c.nombre,c.tel,c.inmuebleNombre,c.inmuebleZona,c.canal,c.fecha,c.estado,(c.notas||'').replace(/,/g,';')]);
+  }
+  const csv=[headers,...rows].map(r=>r.map(v=>`"${v||''}"`).join(',')).join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=filename; a.click();
+  URL.revokeObjectURL(url); toast('✓ CSV descargado');
+}
+
+/* ── RESUMEN ── */
+function renderResumen(){
+  document.getElementById('r-inmuebles').textContent=inmuebles.length;
+  document.getElementById('r-inter').textContent=clientes.filter(c=>c.estado==='interesado').length;
+  document.getElementById('r-prods').textContent=prods.filter(p=>p.status!=='entregada'&&p.status!=='youtube').length;
+  document.getElementById('r-close').textContent=inmuebles.filter(i=>i.estado==='vendido').length;
+  const rp=document.getElementById('r-pub'); if(rp) rp.textContent=inmuebles.filter(i=>i.publicado&&i.publicado.length>0).length;
+  document.getElementById('r-recent-inmuebles').innerHTML=inmuebles.slice(-5).reverse().map(i=>`
+    <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;" onclick="showPage('inmuebles',document.querySelectorAll('.nav-item')[1])">
+      <div><div style="font-weight:600;font-size:13px;">${i.tipo} · ${i.nombre}</div><div style="font-size:11px;color:var(--text-3);">${i.zona||'—'} · ${i.valor?fmt(i.valor):'sin precio'}</div></div>
+      ${badge(i.estado)}
+    </div>`).join('')||'<div class="empty-state"><p>Sin inmuebles aún</p></div>';
+  document.getElementById('r-recent-clientes').innerHTML=clientes.slice(-5).reverse().map(c=>`
+    <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:8px;">
+      <div><div style="font-weight:600;font-size:13px;">${c.nombre}</div><div style="font-size:11px;color:var(--text-3);">${c.inmuebleNombre||'—'}</div></div>
+      ${badge(c.estado)}
+    </div>`).join('')||'<div class="empty-state"><p>Sin interesados aún</p></div>';
+}
+
+/* ── PDF ── */
+function exportPDF(section){
+  const date=new Date().toLocaleDateString('es-SV');
+  const vendidos=inmuebles.filter(i=>i.estado==='vendido');
+  const totalComm=vendidos.reduce((s,i)=>s+(i.valor||0)*(i.comm||5)/100,0);
+  let html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Reporte Nugudú</title>
+  <style>body{font-family:Arial,sans-serif;color:#111;padding:24px;font-size:12px;}
+  h1{color:#1A3A6B;font-size:18px;margin-bottom:2px;}.sub{color:#6B7280;font-size:11px;margin-bottom:16px;}
+  table{width:100%;border-collapse:collapse;margin-top:10px;}
+  th{background:#1A3A6B;color:#fff;padding:7px 10px;text-align:left;font-size:11px;}
+  td{padding:6px 10px;border-bottom:1px solid #E5E7EB;font-size:11px;color:#374151;}
+  tr:nth-child(even) td{background:#F9FAFB;}tr.v td{background:#f0fdf4;}
+  .mwrap{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;}
+  .mc{background:#F3F4F6;border-radius:8px;padding:10px 14px;min-width:120px;}
+  .mc-l{font-size:10px;color:#6B7280;text-transform:uppercase;}.mc-v{font-size:20px;font-weight:700;color:#1A3A6B;}
+  .mc-v.g{color:#059669;}.mc-v.a{color:#D97706;}
+  h2{color:#1A3A6B;font-size:13px;margin:16px 0 4px;}
+  .footer{margin-top:24px;padding-top:10px;border-top:1px solid #E5E7EB;font-size:10px;color:#9CA3AF;text-align:center;}
+  </style></head><body>
+  <h1>CSBR — Cámara Salvadoreña de Bienes Raíces</h1>
+  <div class="sub">Reporte · ${date} · nuguduprodutions@gmail.com · +503 7923-0594</div>`;
+
+  html+=`<div class="mwrap">
+    <div class="mc"><div class="mc-l">Inmuebles</div><div class="mc-v">${inmuebles.length}</div></div>
+    <div class="mc"><div class="mc-l">Interesados</div><div class="mc-v">${clientes.length}</div></div>
+    <div class="mc"><div class="mc-l">Comisión total</div><div class="mc-v a">$${totalComm.toLocaleString('es-SV',{minimumFractionDigits:2})}</div></div>
+    <div class="mc"><div class="mc-l">CSBR 50%</div><div class="mc-v g">$${(totalComm/2).toLocaleString('es-SV',{minimumFractionDigits:2})}</div></div>
+  </div>`;
+
+  if(section==='inmuebles'||section==='resumen'||section==='reportes'){
+    html+=`<h2>Inmuebles</h2><table><thead><tr><th>Inmueble</th><th>Tipo</th><th>Zona</th><th>Operación</th><th>Valor</th><th>% Com.</th><th>Com. total</th><th>CSBR 50%</th><th>Socio 50%</th><th>Estado</th><th>Interesados</th></tr></thead><tbody>`;
+    inmuebles.forEach(i=>{
+      const c=(i.valor||0)*(i.comm||5)/100;
+      const ints=clientes.filter(x=>x.inmuebleId===i.id).length;
+      html+=`<tr class="${i.estado==='vendido'?'v':''}"><td>${i.nombre}</td><td>${i.tipo}</td><td>${i.zona||'—'}</td><td>${i.op||'—'}</td>
+      <td>${i.valor?'$'+i.valor.toLocaleString('es-SV',{minimumFractionDigits:2}):'—'}</td>
+      <td>${i.comm||5}%</td>
+      <td style="color:#D97706;font-weight:600;">${c?'$'+c.toLocaleString('es-SV',{minimumFractionDigits:2}):'—'}</td>
+      <td style="color:#059669;font-weight:600;">${c?'$'+(c/2).toLocaleString('es-SV',{minimumFractionDigits:2}):'—'}</td>
+      <td>${c?'$'+(c/2).toLocaleString('es-SV',{minimumFractionDigits:2}):'—'}</td>
+      <td>${SL[i.estado]||i.estado}</td><td>${ints}</td></tr>`;
+    });
+    if(!inmuebles.length) html+=`<tr><td colspan="11" style="text-align:center;color:#9CA3AF;">Sin inmuebles</td></tr>`;
+    html+=`</tbody></table>`;
+  }
+  if(section==='clientes'||section==='resumen'){
+    html+=`<h2>Interesados</h2><table><thead><tr><th>Nombre</th><th>Teléfono</th><th>Inmueble</th><th>Zona</th><th>Canal</th><th>Fecha</th><th>Estado</th><th>Notas</th></tr></thead><tbody>`;
+    clientes.forEach(c=>{html+=`<tr><td>${c.nombre}</td><td>${c.tel||'—'}</td><td>${c.inmuebleNombre||'—'}</td><td>${c.inmuebleZona||'—'}</td><td>${c.canal||'—'}</td><td>${c.fecha||'—'}</td><td>${SL[c.estado]||c.estado}</td><td>${c.notas||'—'}</td></tr>`;});
+    if(!clientes.length) html+=`<tr><td colspan="8" style="text-align:center;color:#9CA3AF;">Sin interesados</td></tr>`;
+    html+=`</tbody></table>`;
+  }
+  if(section==='producciones'||section==='resumen'){
+    html+=`<h2>Producciones</h2><table><thead><tr><th>Inmueble</th><th>Agente</th><th>Tipo</th><th>Fecha</th><th>Estado</th><th>Notas</th></tr></thead><tbody>`;
+    prods.forEach(p=>{html+=`<tr><td>${p.prop}</td><td>${p.agent||'—'}</td><td>${p.tipo||'—'}</td><td>${p.date||'—'}</td><td>${SL[p.status]||p.status}</td><td>${p.notes||'—'}</td></tr>`;});
+    if(!prods.length) html+=`<tr><td colspan="6" style="text-align:center;color:#9CA3AF;">Sin producciones</td></tr>`;
+    html+=`</tbody></table>`;
+  }
+  html+=`<div class="footer">CSBR — Cámara Salvadoreña de Bienes Raíces · nuguduprodutions@gmail.com · +503 7923-0594 · El Salvador</div></body></html>`;
+  const win=window.open('','_blank');
+  win.document.write(html); win.document.close(); win.focus();
+  setTimeout(()=>win.print(),400);
+}
+
+function copyBox(btn){
+  const text=btn.parentElement.textContent.replace('Copiar','').replace('¡Copiado!','').trim();
+  navigator.clipboard.writeText(text).then(()=>{btn.textContent='¡Copiado!';setTimeout(()=>btn.textContent='Copiar',1500);});
+}
+
+renderResumen();
+</script>
+</body>
+</html>
