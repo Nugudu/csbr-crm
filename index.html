@@ -280,6 +280,16 @@ tr:hover td{background:#FAFAFA;}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22.54 6.42a2.78 2.78 0 00-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 001.46 6.42 29 29 0 001 12a29 29 0 00.46 5.58 2.78 2.78 0 001.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 001.95-1.96A29 29 0 0023 12a29 29 0 00-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="currentColor"/></svg>
       <span>YouTube SEO</span>
     </div>
+    <div class="nav-label">Respaldo</div>
+    <div class="nav-item" onclick="exportarRespaldo()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      <span>Exportar respaldo</span>
+    </div>
+    <div class="nav-item" onclick="document.getElementById('input-importar').click()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <span>Importar respaldo</span>
+    </div>
+    <input type="file" id="input-importar" accept=".json" style="display:none;" onchange="importarRespaldo(event)">
   </nav>
   <div class="sidebar-footer">
     <strong>Nuria Durán</strong>
@@ -901,6 +911,71 @@ function save(){
   localStorage.setItem('ngd_inmuebles', JSON.stringify(inmuebles));
   localStorage.setItem('ngd_clientes',  JSON.stringify(clientes));
   localStorage.setItem('ngd_prods',     JSON.stringify(prods));
+}
+
+/* ── Respaldo: exportar e importar todos los datos (inmuebles, interesados, producciones) ── */
+function exportarRespaldo(){
+  const respaldo={
+    version:1,
+    fecha:new Date().toISOString(),
+    inmuebles:inmuebles,
+    clientes:clientes,
+    prods:prods
+  };
+  const blob=new Blob([JSON.stringify(respaldo,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='CSBR_respaldo_'+new Date().toISOString().split('T')[0]+'.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('✓ Respaldo descargado');
+}
+
+function importarRespaldo(event){
+  const file=event.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const data=JSON.parse(e.target.result);
+      if(!data.inmuebles && !data.clientes && !data.prods){
+        alert('Este archivo no parece ser un respaldo válido del dashboard.');
+        return;
+      }
+      const totalActual=inmuebles.length+clientes.length+prods.length;
+      let confirmMsg='Vas a importar:\n';
+      confirmMsg+='- '+(data.inmuebles||[]).length+' inmuebles\n';
+      confirmMsg+='- '+(data.clientes||[]).length+' interesados\n';
+      confirmMsg+='- '+(data.prods||[]).length+' producciones\n\n';
+      if(totalActual>0){
+        confirmMsg+='Este dispositivo ya tiene '+totalActual+' registros guardados.\n¿Cómo deseas importar?\n\nAceptar = COMBINAR (agrega lo nuevo sin borrar lo actual)\nCancelar = no importar';
+        if(!confirm(confirmMsg))return;
+        // Combinar evitando duplicados por id
+        const idsInm=new Set(inmuebles.map(i=>i.id));
+        const idsCli=new Set(clientes.map(c=>c.id));
+        const idsProd=new Set(prods.map(p=>p.id));
+        (data.inmuebles||[]).forEach(i=>{ if(!idsInm.has(i.id)) inmuebles.push(i); });
+        (data.clientes||[]).forEach(c=>{ if(!idsCli.has(c.id)) clientes.push(c); });
+        (data.prods||[]).forEach(p=>{ if(!idsProd.has(p.id)) prods.push(p); });
+      } else {
+        if(!confirm(confirmMsg+'Este dispositivo no tiene registros aún. ¿Importar todo?'))return;
+        inmuebles=data.inmuebles||[];
+        clientes=data.clientes||[];
+        prods=data.prods||[];
+      }
+      save();
+      renderResumen();
+      if(typeof renderInmuebles==='function') renderInmuebles();
+      if(typeof renderClientes==='function') renderClientes();
+      if(typeof renderProds==='function') renderProds();
+      toast('✓ Respaldo importado correctamente');
+    }catch(err){
+      alert('Error al leer el archivo. Asegúrate de que sea un respaldo .json válido exportado desde este mismo dashboard.');
+    }
+    event.target.value='';
+  };
+  reader.readAsText(file);
 }
 function toast(msg='✓ Guardado'){
   const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
