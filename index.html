@@ -233,6 +233,11 @@ tr:hover td{background:#FAFAFA;}
   .inmueble-grid{grid-template-columns:1fr;}
   .comm-row{grid-template-columns:1fr 1fr;}
 }
+.mobile-topbar{display:none;position:fixed;top:0;left:0;right:0;height:48px;background:var(--navy);
+  align-items:center;padding:0 12px;z-index:101;gap:10px;border-bottom:3px solid var(--gold);}
+.mobile-topbar button{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:4px 8px;line-height:1;}
+.mobile-topbar .mt-title{color:#fff;font-size:15px;font-weight:700;}
+.mobile-topbar .mt-title span{color:var(--gold);}
 @media(max-width:600px){
   .metrics,.rep-grid{grid-template-columns:1fr;}
   .main{margin-left:0;padding:12px;padding-top:56px;}
@@ -247,11 +252,6 @@ tr:hover td{background:#FAFAFA;}
   .mobile-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:99;}
   .mobile-overlay.show{display:block;}
 }
-.mobile-topbar{display:none;position:fixed;top:0;left:0;right:0;height:48px;background:var(--navy);
-  align-items:center;padding:0 12px;z-index:101;gap:10px;border-bottom:3px solid var(--gold);}
-.mobile-topbar button{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:4px 8px;line-height:1;}
-.mobile-topbar .mt-title{color:#fff;font-size:15px;font-weight:700;}
-.mobile-topbar .mt-title span{color:var(--gold);}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
