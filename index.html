@@ -1041,6 +1041,11 @@ function toast(msg='✓ Guardado'){
 }
 
 /* ── Navigation ── */
+function toggleSidebarMobile(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('mobile-overlay').classList.toggle('show');
+}
+
 function showPage(id, el) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
@@ -1048,6 +1053,10 @@ function showPage(id, el) {
   if(el) el.classList.add('active');
   const fn={resumen:renderResumen,inmuebles:renderInmuebles,clientes:renderClientes,producciones:renderProds,reportes:renderReportes};
   if(fn[id]) fn[id]();
+  if(window.innerWidth<=600){
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('mobile-overlay').classList.remove('show');
+  }
 }
 
 function toggleForm(id){
